@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  mc:
+    image: itzg/minecraft-server
+    ports:
+      - 25565:25565
+      - 8123:8123
+    volumes:
+      # attach a directory relative to the directory containing this compose file
+      - /home/jimmy/Projects/minecraft_test/config:/data
+    environment:
+      EULA: "TRUE"
+      VERSION: 1.19.4
+      TYPE: "SPIGOT"
+      MEMORY: "2G"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
