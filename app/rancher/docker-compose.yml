@@ -6,4 +6,4 @@ services:
     restart: unless-stopped
     ports:
       - 8081:80
-      - 8443:8443
+      - 8443:443
