@@ -24,5 +24,11 @@
       body:
         content: "Backup Nextcloud"
         avatar_url: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
-        # embeds: "[{'title': 'Backup Nextcloud', 'status': 'fail', 'color': 'red'}]"
+        embeds: [
+                  {
+                    "title": "Backup Nextcloud",
+                    "description": "Backup operation failed.",
+                    "color": 16711680
+                  }
+                ]
       status_code: 204
