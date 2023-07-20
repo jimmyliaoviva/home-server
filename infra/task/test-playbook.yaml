@@ -18,7 +18,7 @@
 
   - name: send message to discord webhook
     ansible.builtin.uri:
-      url: "{{ discord_webhook_url }}}"
+      url: "{{ discord_webhook_url }}"
       method: POST
       body_format: json
       body:
