@@ -22,6 +22,6 @@
       method: POST
       body_format: form-urlencoded
       body:
-        avator: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
-        embeds: "{title: 'Backup Nextcloud', status: 'fail, color: 'red'}"
+        avatar: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
+        embeds: "[{title: 'Backup Nextcloud', status: 'fail, color: 'red'}]"
       status_code: 204
