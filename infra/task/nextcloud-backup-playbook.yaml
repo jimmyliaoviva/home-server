@@ -3,23 +3,51 @@
   become: true  # Run commands with sudo
 
   tasks:
-    - name: Run nextcloud.export command
-      ansible.builtin.command:
-        cmd: |
-          sudo -u www-data nextcloud.export 
+    block:
+      - name: Run nextcloud.export command
+        ansible.builtin.command:
+          cmd: |
+            sudo -u www-data nextcloud.export 
 
-    - name: locate exported folder
-      ansible.builtin.find:
-        paths: "/var/snap/nextcloud/common/backups/" 
-        file_type: directory
-      register: folder_info
+      - name: locate exported folder
+        ansible.builtin.find:
+          paths: "/var/snap/nextcloud/common/backups/" 
+          file_type: directory
+        register: folder_info
 
-    - name: tar exported folder
-      ansible.builtin.archive:
-        path: "{{ folder_info.files[0].path }}"
-        dest: "/home/nextcloud/nextcloud_backup.tar.gz"
-        format: gz
+      - name: delete old backup
+        ansible.builtin.file:
+          path: "/home/nextcloud/nextcloud_backup.tar.gz"
+          state: absent
 
-    - name: send message to DC
-      
+      - name: tar exported folder
+        ansible.builtin.archive:
+          path: "{{ folder_info.files[0].path }}"
+          dest: "/home/nextcloud/nextcloud_backup.tar.gz"
+          format: gz
 
+      - name: delete exported folder
+        ansible.builtin.file:
+          path: "{{ folder_info.files[0].path }}"
+          state: absent
+
+      - name: set status to success
+        set_fact:
+          status: "success"
+          status_color: "blue"
+    rescue:
+      - name: set status to fail
+        set_fact:
+          status: "fail"
+          status_color: "red"
+    always:
+      - name: send message to discord webhook
+        ansible.builtin.uri:
+          url: "{{ discord_webhook_url }}}"
+          method: POST
+          body_format: json
+          body:
+            content: "Hello from Ansible!"  # Your message content
+            avator: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
+            embeds: "{title: 'Backup Nextcloud', status: '{{ status }}, color: '{{ status_color }}'}"
+          status_code: 204

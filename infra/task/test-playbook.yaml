@@ -15,3 +15,13 @@
   - name: print file name
     debug:
       msg: "{{ folder_info.files[0].path}}"
+
+  - name: send message to discord webhook
+    ansible.builtin.uri:
+      url: "{{ discord_webhook_url }}}"
+      method: POST
+      body_format: json
+      body:
+        avator: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
+        embeds: "{title: 'Backup Nextcloud', status: 'fail, color: 'red'}"
+      status_code: 204
