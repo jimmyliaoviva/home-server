@@ -7,11 +7,10 @@
       msg: "Hello world!"
 
   - name: get first file name
-    find:
-      paths: "/var/snap/nextcloud/common/backups/"
-      file_type: "file"
-    register: files
+    ansible.builtin.stat:
+      path: "/var/snap/nextcloud/common/backups/"  # Replace with the path to the folder you want to get the name of
+    register: folder_info
 
   - name: print file name
     debug:
-      msg: "{{ files.files }}"
+      msg: "{{ folder_info }}"
