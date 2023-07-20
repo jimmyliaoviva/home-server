@@ -1,0 +1,12 @@
+- name: backup nextcloud
+  hosts: all
+
+  tasks:
+  - name: 
+    ansible.builtin.yum:
+      name: httpd
+      state: latest
+  - name: Write the apache config file
+    ansible.builtin.template:
+      src: /srv/httpd.j2
+      dest: /etc/httpd.conf
