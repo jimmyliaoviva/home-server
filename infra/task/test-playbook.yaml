@@ -14,4 +14,4 @@
 
   - name: print file name
     debug:
-      msg: "{{ files.files[0].path }}"
+      msg: "{{ files }}"
