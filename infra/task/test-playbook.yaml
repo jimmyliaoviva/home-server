@@ -20,7 +20,7 @@
     ansible.builtin.uri:
       url: "{{ discord_webhook_url }}"
       method: POST
-      body_format: form-urlencoded
+      body_format: json
       body:
         content: "Backup Nextcloud"
         avatar_url: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
