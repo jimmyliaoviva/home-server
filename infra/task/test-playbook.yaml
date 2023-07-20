@@ -14,4 +14,4 @@
 
   - name: print file name
     debug:
-      msg: "{{ folder_info.stat.path | basename }}"
+      msg: "{{ folder_info.files[0].path | basename }}"
