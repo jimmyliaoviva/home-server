@@ -1,12 +1,18 @@
 - name: backup nextcloud
   hosts: all
+  become: true  # Run commands with sudo
 
   tasks:
-  - name: 
-    ansible.builtin.yum:
-      name: httpd
-      state: latest
-  - name: Write the apache config file
-    ansible.builtin.template:
-      src: /srv/httpd.j2
-      dest: /etc/httpd.conf
+    - name: Run nextcloud.export command
+      ansible.builtin.command:
+        cmd: |
+          sudo -u www-data nextcloud.export 
+
+    - name: backup nextcloud
+      include_role:
+        name: nextcloud
+        tasks_from: backup
+
+    - name: send message to DC
+      
+

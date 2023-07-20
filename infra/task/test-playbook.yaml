@@ -5,3 +5,13 @@
   - name: hello world
     debug:
       msg: "Hello world!"
+
+  - name: get first file name
+    find:
+      paths: "/var/snap/nextcloud/common/backups/"
+      file_type: "file"
+    register: files
+
+  - name: print file name
+    debug:
+      msg: "{{ files.files[0].path }}"
