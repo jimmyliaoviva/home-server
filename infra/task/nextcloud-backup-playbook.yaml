@@ -3,7 +3,7 @@
   become: true  # Run commands with sudo
 
   tasks:
-    block:
+    - block:
       - name: Run nextcloud.export command
         ansible.builtin.command:
           cmd: |
@@ -50,7 +50,7 @@
           body_format: json
           body:
             username: "Ansible automation bot" 
-            avator: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
+            avatar: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
             embeds: [
                       {
                         "title": 'Backup Nextcloud', 
@@ -63,7 +63,7 @@
                                     },
                                     {
                                       "name": "result",
-                                      "value": "{{result}}"
+                                      "value": "{{result.stdout}}"
                                     }
                                   ]
                       }
