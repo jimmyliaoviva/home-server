@@ -3,8 +3,8 @@
   become: yes
 
   vars:
-    playbook-title: "Backup Nextcloud"
-    playbook-description: "Nextcloud backup"
+    playbook_title: "Backup Nextcloud"
+    playbook_description: "Nextcloud backup"
 
   tasks:
     - name: Start
