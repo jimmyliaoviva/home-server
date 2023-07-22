@@ -28,7 +28,7 @@
     register: result
 
   - debug:
-      msg: result
+      msg: "{{result}}"
 
   - name: send message to discord webhook
     ansible.builtin.uri:
