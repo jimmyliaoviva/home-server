@@ -10,20 +10,13 @@
   tasks:
   - name: Deploy homer static files
     block:
-      - name: Start SSH agent
-        shell: eval $(ssh-agent)
-        become: true
-
-      - name: Add SSH key to agent
-        shell: ssh-add ~/.ssh/github2023
-        become: true
-
       - name: pull repository
         git:
           repo: "{{repo_url}}"
           dest: "{{homer_path}}"
           version: main
           update: yes
+          key_file: ~/.ssh/github2023
         become: true
 
       - name: set status to success
