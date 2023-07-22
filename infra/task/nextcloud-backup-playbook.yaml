@@ -33,6 +33,7 @@
           ansible.builtin.file:
             path: "{{ folder_info.files[0].path }}"
             state: absent
+          become: yes
 
         - name: set status to success
           set_fact:
