@@ -1,0 +1,44 @@
+---
+# ansible playbook
+
+- name: update homer static files
+  hosts: all
+  vars:
+    playbook_title: "Deploy homer static files"
+    playbook_description: "Homer deployment"
+
+  tasks:
+  - name: Deploy homer static files
+    block:
+      - name: Start SSH agent
+        shell: eval $(ssh-agent)
+        become: true
+
+      - name: Add SSH key to agent
+        shell: ssh-add ~/.ssh/github2023
+        become: true
+
+      - name: pull repository
+        git:
+          repo: "{{repo_url}}"
+          dest: "{{homer_path}}"
+          version: main
+          update: yes
+        become: true
+
+      - name: set status to success
+        set_fact:
+          status: "success"
+          status_color: 255
+
+    rescue:
+      - name: set status to fail
+        set_fact:
+          status: "fail"
+          status_color: 16711680
+    always:
+    - name: send notification
+      ansible.builtin.include_role:
+        name: discord-bot
+
+
