@@ -16,6 +16,12 @@
     debug:
       msg: "{{ folder_info.files[0].path}}"
 
+  - name: set status to fail
+    set_fact:
+      status: "FAILED"
+      status_color: 16711680
+
+
   - name: send message to discord webhook
     ansible.builtin.uri:
       url: "{{ discord_webhook_url }}"
@@ -28,7 +34,13 @@
                   {
                     "title": "Backup Nextcloud",
                     "description": "Backup operation failed.",
-                    "color": 16711680
+                    "color": "{{status_color}}",
+                          "fields": [
+                                      {
+                                        "name": "status",
+                                        "value": "{{status}}"
+                                      }
+                                    ]
                   }
                 ]
       status_code: 204
