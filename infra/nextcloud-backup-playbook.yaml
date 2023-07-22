@@ -49,5 +49,6 @@
             status: "fail"
             status_color: 16711680
       always:
-        roles:
-          - discord-bot
+      - name: send notification
+        ansible.builtin.include_role:
+          name: discord-bot
