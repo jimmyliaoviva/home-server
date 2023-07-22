@@ -2,70 +2,71 @@
   hosts: all
   become: true  # Run commands with sudo
 
+  tasks:
+    - name: Start
+      block:
+        - name: Run nextcloud.export command
+          ansible.builtin.command:
+            cmd: |
+              sudo -u www-data nextcloud.export 
+          register: result
 
-  block:
-    - name: Run nextcloud.export command
-      ansible.builtin.command:
-        cmd: |
-          sudo -u www-data nextcloud.export 
-      register: result
+        - name: locate exported folder
+          ansible.builtin.find:
+            paths: "/var/snap/nextcloud/common/backups/" 
+            file_type: directory
+          register: folder_info
 
-    - name: locate exported folder
-      ansible.builtin.find:
-        paths: "/var/snap/nextcloud/common/backups/" 
-        file_type: directory
-      register: folder_info
+        - name: delete old backup
+          ansible.builtin.file:
+            path: "/home/nextcloud/nextcloud_backup.tar.gz"
+            state: absent
 
-    - name: delete old backup
-      ansible.builtin.file:
-        path: "/home/nextcloud/nextcloud_backup.tar.gz"
-        state: absent
+        - name: tar exported folder
+          ansible.builtin.archive:
+            path: "{{ folder_info.files[0].path }}"
+            dest: "/home/nextcloud/nextcloud_backup.tar.gz"
+            format: gz
 
-    - name: tar exported folder
-      ansible.builtin.archive:
-        path: "{{ folder_info.files[0].path }}"
-        dest: "/home/nextcloud/nextcloud_backup.tar.gz"
-        format: gz
+        - name: delete exported folder
+          ansible.builtin.file:
+            path: "{{ folder_info.files[0].path }}"
+            state: absent
 
-    - name: delete exported folder
-      ansible.builtin.file:
-        path: "{{ folder_info.files[0].path }}"
-        state: absent
+        - name: set status to success
+          set_fact:
+            status: "success"
+            status_color: 255
 
-    - name: set status to success
-      set_fact:
-        status: "success"
-        status_color: 255
-
-  rescue:
-    - name: set status to fail
-      set_fact:
-        status: "fail"
-        status_color: 16711680
-  always:
-    - name: send message to discord webhook
-      ansible.builtin.uri:
-        url: "{{ discord_webhook_url }}}"
-        method: POST
-        body_format: json
-        body:
-          username: "Ansible automation bot" 
-          avatar: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
-          embeds: [
-                    {
-                      "title": 'Backup Nextcloud', 
-                      "description": "Nextcloud backup operation {{status}}, \n result: {{result}}",
-                      "color" : '{{ status_color }}',
-                      "fields": [
-                                  {
-                                    "name": "status",
-                                    "value": "{{status}}"
-                                  },
-                                  {
-                                    "name": "result",
-                                    "value": "{{result.stdout}}"
-                                  }
-                                ]
-                    }
-                  ]
-        status_code: 204
+      rescue:
+        - name: set status to fail
+          set_fact:
+            status: "fail"
+            status_color: 16711680
+      always:
+        - name: send message to discord webhook
+          ansible.builtin.uri:
+            url: "{{ discord_webhook_url }}}"
+            method: POST
+            body_format: json
+            body:
+              username: "Ansible automation bot" 
+              avatar: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
+              embeds: [
+                        {
+                          "title": 'Backup Nextcloud', 
+                          "description": "Nextcloud backup operation {{status}}, \n result: {{result}}",
+                          "color" : '{{ status_color }}',
+                          "fields": [
+                                      {
+                                        "name": "status",
+                                        "value": "{{status}}"
+                                      },
+                                      {
+                                        "name": "result",
+                                        "value": "{{result.stdout}}"
+                                      }
+                                    ]
+                        }
+                      ]
+            status_code: 204
