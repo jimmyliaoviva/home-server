@@ -2,7 +2,7 @@
   hosts: all
   become: true  # Run commands with sudo
   become_method: sudo
-  become_user: root
+  become_user: jimmy
 
   vars:
     ansible_become_password: "$ANSIBLE_VAULT;1.1;AES256

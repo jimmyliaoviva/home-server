@@ -27,8 +27,10 @@
 
   - name: Run command
     ansible.builtin.command:
-      cmd: sudo nextcloud.export 
+      cmd: nextcloud.export 
     become_user: root
+    become: yes
+    become_method: sudo
     register: result
     async: 300  # Set the async timeout (in seconds) for the command to 300 seconds (adjust as needed)
     poll: 5  
