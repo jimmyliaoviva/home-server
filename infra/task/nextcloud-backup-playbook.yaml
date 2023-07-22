@@ -7,7 +7,8 @@
       block:
         - name: Run nextcloud.export command
           ansible.builtin.command:
-            cmd: sudo nextcloud.export 
+            cmd: nextcloud.export 
+          become_user: root
           register: result
 
         - name: locate exported folder
