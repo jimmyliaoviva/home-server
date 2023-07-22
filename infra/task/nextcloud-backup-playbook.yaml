@@ -8,6 +8,7 @@
         ansible.builtin.command:
           cmd: |
             sudo -u www-data nextcloud.export 
+        register: result
 
       - name: locate exported folder
         ansible.builtin.find:
@@ -35,6 +36,7 @@
         set_fact:
           status: "success"
           status_color: 255
+
     rescue:
       - name: set status to fail
         set_fact:
@@ -52,8 +54,18 @@
             embeds: [
                       {
                         "title": 'Backup Nextcloud', 
-                        "status": '{{ status }}', 
-                        "color" : '{{ status_color }}'
+                        "description": "Nextcloud backup operation {{status}}, \n result: {{result}}"
+                        "color" : '{{ status_color }}',
+                        "fields": [
+                                    {
+                                      "name": "status",
+                                      "value": "{{status}}"
+                                    },
+                                    {
+                                      "name": "result",
+                                      "value": "{{result}}"
+                                    }
+                                  ]
                       }
                     ]
           status_code: 204
