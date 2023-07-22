@@ -2,6 +2,10 @@
   hosts: all
   become: yes
 
+  vars:
+    playbook-title: "Backup Nextcloud"
+    playbook-description: "Nextcloud backup"
+
   tasks:
     - name: Start
       become: yes

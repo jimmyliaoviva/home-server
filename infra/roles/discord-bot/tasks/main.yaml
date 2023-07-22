@@ -8,8 +8,8 @@
               avatar_url: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
               embeds: [
                         {
-                          "title": 'Backup Nextcloud', 
-                          "description": "Nextcloud backup operation {{status}}",
+                          "title": '{{playbook-title}}', 
+                          "description": "{{playbook-description}} operation {{status}}",
                           "color" : '{{ status_color }}',
                           "fields": [
                                       {
