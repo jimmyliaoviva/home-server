@@ -33,7 +33,7 @@
           ansible.builtin.file:
             path: "{{ folder_info.files[0].path }}"
             state: absent
-          become: yes
+          become: true
           become_user: root
           become_method: sudo
 
