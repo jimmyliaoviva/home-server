@@ -29,7 +29,6 @@
             dest: "/var/snap/nextcloud/common/backups/nextcloud_backup.tar.gz"
             format: gz
           become: true
-          become_user: root
           become_method: sudo
           
 
