@@ -107,6 +107,12 @@ services:
         tag: "dockers"
         url: "https://192.168.68.124:9443/"
         target: "_blank" # optional html a tag target attribute
+      - name: "Ansible Semaphore"
+        logo: "assets/tools/semaphore.png"
+        subtitle: "automation, pipeline, CI/CD"
+        tag: "ansible"
+        url: "https://192.168.68.125:3000/"
+        target: "_blank" # optional html a tag target attribute
 
 
   - name: "Application"
