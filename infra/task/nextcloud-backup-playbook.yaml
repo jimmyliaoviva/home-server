@@ -28,6 +28,9 @@
             path: "{{ folder_info.files[0].path }}"
             dest: "/var/snap/nextcloud/common/backups/nextcloud_backup.tar.gz"
             format: gz
+          become: true
+          become_user: root
+          become_method: sudo
           
 
         - name: delete exported folder
