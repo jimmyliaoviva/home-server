@@ -56,7 +56,7 @@
             body_format: json
             body:
               username: "Ansible automation bot" 
-              avatar: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
+              avatar_url: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
               embeds: [
                         {
                           "title": 'Backup Nextcloud', 
