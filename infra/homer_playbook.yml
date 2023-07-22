@@ -2,29 +2,23 @@
 # ansible playbook
 
 - name: update homer static files
-  hosts: node
-  remote_user: jimmy
+  hosts: all
 
   tasks:
   - name: Start SSH agent
     shell: eval $(ssh-agent)
     become: true
-    become_user: jimmy
-    become_method: sudo
 
   - name: Add SSH key to agent
     shell: ssh-add ~/.ssh/github2023
     become: true
-    become_user: jimmy
-    become_method: sudo
 
   - name: pull repository
     git:
       repo: "{{repo_url}}"
-      dest: "{{repo_path}}"
+      dest: "{{homer_path}}"
       version: main
       update: yes
     become: true
-    become_user: jimmy
-    become_method: sudo
+
 

@@ -49,25 +49,5 @@
             status: "fail"
             status_color: 16711680
       always:
-        - name: send message to discord webhook
-          ansible.builtin.uri:
-            url: "{{ discord_webhook_url }}"
-            method: POST
-            body_format: json
-            body:
-              username: "Ansible automation bot" 
-              avatar_url: "https://docs.ansible.com/ansible/latest/_static/images/Ansible-Mark-RGB_White.png"
-              embeds: [
-                        {
-                          "title": 'Backup Nextcloud', 
-                          "description": "Nextcloud backup operation {{status}}",
-                          "color" : '{{ status_color }}',
-                          "fields": [
-                                      {
-                                        "name": "status",
-                                        "value": "{{status}}"
-                                      }
-                                    ]
-                        }
-                      ]
-            status_code: 204
+        roles:
+          - discord-bot
