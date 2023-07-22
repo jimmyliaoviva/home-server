@@ -23,6 +23,10 @@
             state: absent
           ignore_errors: true
 
+        - name: change folder owner
+          ansible.builtin.command:
+            cmd: sudo chown -R jimmy:jimmy "{{ folder_info.files[0].path }}"
+
         - name: tar exported folder
           ansible.builtin.archive:
             path: "{{ folder_info.files[0].path }}"
@@ -37,7 +41,6 @@
             path: "{{ folder_info.files[0].path }}"
             state: absent
           become: true
-          become_user: root
           become_method: sudo
 
         - name: set status to success
