@@ -54,7 +54,7 @@
             embeds: [
                       {
                         "title": 'Backup Nextcloud', 
-                        "description": "Nextcloud backup operation {{status}}, \n result: {{result}}"
+                        "description": "Nextcloud backup operation {{status}}, \n result: {{result}}",
                         "color" : '{{ status_color }}',
                         "fields": [
                                     {
