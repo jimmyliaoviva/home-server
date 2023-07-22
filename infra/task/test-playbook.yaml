@@ -24,8 +24,7 @@
 
   - name: Run command
     ansible.builtin.command:
-      cmd: |
-        sudo ls -al 
+      cmd: ls -al 
     register: result
 
   - debug:
