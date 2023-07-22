@@ -22,6 +22,15 @@
       status_color: 16711680
 
 
+  - name: Run command
+    ansible.builtin.command:
+      cmd: |
+        sudo ls -al 
+    register: result
+
+  - debug:
+      msg: result
+
   - name: send message to discord webhook
     ansible.builtin.uri:
       url: "{{ discord_webhook_url }}"
