@@ -19,15 +19,16 @@
 
         - name: delete old backup
           ansible.builtin.file:
-            path: "/home/nextcloud/nextcloud_backup.tar.gz"
+            path: "/home/nextcloud/common/backups/nextcloud_backup.tar.gz"
             state: absent
+          ignore_errors: true
 
         - name: tar exported folder
           ansible.builtin.archive:
             path: "{{ folder_info.files[0].path }}"
-            dest: "/home/nextcloud/nextcloud_backup.tar.gz"
+            dest: "/home/nextcloud/common/backups/nextcloud_backup.tar.gz"
             format: gz
-          ignore_errors: true
+          
 
         - name: delete exported folder
           ansible.builtin.file:
