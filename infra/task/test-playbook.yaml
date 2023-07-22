@@ -1,6 +1,8 @@
 - name: test playbook
   hosts: all
   become: yes
+  become_method: sudo
+  become_user: root
 
   tasks:
   - name: hello world
