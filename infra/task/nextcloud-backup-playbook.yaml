@@ -1,16 +1,5 @@
 - name: backup nextcloud
   hosts: all
-  become: true  # Run commands with sudo
-  become_method: sudo
-  become_user: jimmy
-
-  vars:
-    ansible_become_password: "$ANSIBLE_VAULT;1.1;AES256
-62386637333638323939306264666465653765356433313537613436373131613238613062343463
-3666376433323534313763373636646265343266343063620a313834613935393065323231366466
-32303864303761343339376336353665313432346665373266393436383735306335333163396165
-3665396432646634370a393330663231623361643562613533613162363430306662346233373335
-6131"
 
   tasks:
     - name: Start
@@ -37,6 +26,7 @@
             path: "{{ folder_info.files[0].path }}"
             dest: "/home/nextcloud/nextcloud_backup.tar.gz"
             format: gz
+          ignore_errors: true
 
         - name: delete exported folder
           ansible.builtin.file:
