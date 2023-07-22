@@ -1,6 +1,7 @@
 - name: backup nextcloud
   hosts: all
-
+  become: yes
+  
   tasks:
     - name: Start
       become: yes
