@@ -34,6 +34,8 @@
             path: "{{ folder_info.files[0].path }}"
             state: absent
           become: yes
+          become_user: root
+          become_method: sudo
 
         - name: set status to success
           set_fact:
