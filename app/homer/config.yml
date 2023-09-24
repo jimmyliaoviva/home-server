@@ -132,7 +132,7 @@ services:
         keywords: "smart home"
         url: "http://192.168.68.127:8123/"
         target: "_blank" # optional html a tag target attribute
-      - name: "Owntone"
+      - name: "owntone"
         logo: "assets/tools/owntone.svp"
         subtitle: "Living room player"
         tag: "music"
