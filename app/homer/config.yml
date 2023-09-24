@@ -132,12 +132,12 @@ services:
         keywords: "smart home"
         url: "http://192.168.68.127:8123/"
         target: "_blank" # optional html a tag target attribute
-      - name: "Mopidy - Iris"
-        logo: "assets/tools/iris.ico"
+      - name: "Owntone"
+        logo: "assets/tools/owntone.svp"
         subtitle: "Living room player"
         tag: "music"
         keywords: "music"
-        url: "http://192.168.68.117:6680/iris/"
+        url: "http://192.168.68.128:3689/"
         target: "_blank" # optional html a tag target attribute
 
 
