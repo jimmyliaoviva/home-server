@@ -133,7 +133,7 @@ services:
         url: "http://192.168.68.127:8123/"
         target: "_blank" # optional html a tag target attribute
       - name: "owntone"
-        logo: "assets/tools/owntone.svp"
+        logo: "assets/tools/owntone.svg"
         subtitle: "Living room player"
         tag: "music"
         keywords: "music"
