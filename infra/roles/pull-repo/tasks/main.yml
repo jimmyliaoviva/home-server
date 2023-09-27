@@ -4,5 +4,5 @@
     dest: "{{repo_path}}"
     version: main
     update: yes
-    key_file: ~/.ssh/github2023
+    key_file: "{{github_key_file}}"
   become: true
