@@ -1,0 +1,32 @@
+---
+# ansible playbook
+- name: deploy uptime-kuma
+  hosts: all
+  vars:
+    playbook_title: "deploy uptime-kuma"
+    playbook_description: "deploy uptime-kuma"
+
+  tasks:
+  - name: Deploy uptime kuma
+    block:
+      - name: pull repository
+        ansible.builtin.include_role:
+          name: pull-repo
+
+
+      - name: set status to success
+        set_fact:
+          status: "success"
+          status_color: 255
+
+    rescue:
+      - name: set status to fail
+        set_fact:
+          status: "fail"
+          status_color: 16711680
+    always:
+    - name: send notification
+      ansible.builtin.include_role:
+        name: discord-bot
+
+
