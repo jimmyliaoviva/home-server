@@ -13,6 +13,10 @@
         ansible.builtin.include_role:
           name: pull-repo
 
+      - name: run docker image
+        ansible.builtin.command: docker-compose up -d
+        args:
+          chdir: "{{repo_path}}/app/uptime_kuma"
 
       - name: set status to success
         set_fact:
