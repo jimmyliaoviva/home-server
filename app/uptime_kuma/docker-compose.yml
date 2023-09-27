@@ -1,0 +1,14 @@
+version: '3'
+services:
+  uptime-kuma:
+  # the latest tag is 1
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime-kuma:/app/data
+    restart: always
+volumes:
+  uptime-kuma:
+
