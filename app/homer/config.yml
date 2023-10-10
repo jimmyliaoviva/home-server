@@ -139,6 +139,13 @@ services:
         keywords: "music"
         url: "http://192.168.68.128:3689/"
         target: "_blank" # optional html a tag target attribute
+      - name: "uptime kuma"
+        logo: "assets/tools/uptime_kuma.svg"
+        subtitle: "Service monitor"
+        tag: "monitor"
+        keywords: "monitor"
+        url: "http://192.168.68.128:3001/"
+        target: "_blank" # optional html a tag target attribute
 
 
 
