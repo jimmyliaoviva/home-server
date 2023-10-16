@@ -7,5 +7,5 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./config:/etc/prometheus
+      - ./settings:/etc/prometheus
 
