@@ -19,9 +19,6 @@ scrape_configs:
       - targets: ['localhost:9090']
   - job_name: 'Hardware'
     static_configs:
-      - targets: ['192.168.68.110:9100']
-        labels:
-          instance: Jimmy-desktop
       - targets: ['192.168.68.128:9100']
         labels:
           instance: Maple
