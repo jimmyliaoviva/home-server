@@ -22,13 +22,4 @@ scrape_configs:
       - targets: ['192.168.68.128:9100']
         labels:
           instance: Maple
-      - targets: ['192.168.68.120:9100']
-        labels:
-          instance: Kuro
-      - targets: ['192.168.68.104:9100']
-        labels:
-          instance: Shiro
-      - targets: ['192.168.68.123:9100']
-        labels:
-          instance: Laptop 
 
