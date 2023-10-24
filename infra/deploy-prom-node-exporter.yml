@@ -1,0 +1,61 @@
+---
+# ansible playbook
+
+- name: deploy promethueus node exporter
+  hosts: all
+  vars:
+    playbook_title: "Deploy promethueus node exporter"
+    playbook_description: "Deploy promethueus node exporter"
+
+  tasks:
+  - name: Deploy homer static files
+    block:
+      # git reset hard
+      - name: git reset hard
+        command: git reset --hard
+        args:
+          chdir: "{{repo_path}}"
+        become: true
+
+      - name: pull repository
+        git:
+          repo: "{{repo_url}}"
+          dest: "{{repo_path}}"
+          version: main
+          update: yes
+          key_file: ~/.ssh/github2023
+        become: true
+
+      - name: Check if node exporter Container Exists
+        command: docker inspect -f '{{.State.Running}}' node_exporter-node_exporter-1
+        ignore_errors: yes
+        register: container_status
+
+      - name: Start Docker Compose Service
+        docker_compose:
+          project_src: "{{repo_path}}/app/prometheus/node_exporter"
+          state: started
+        when: container_status.stdout == "false" or container_status.rc != 0
+
+      - name: restart Docker Compose Service if it is running
+        docker_compose:
+          project_src: "{{repo_path}}/app/prometheus/node_exporter"
+          state: restarted
+        when: container_status.stdout == "true"
+
+      - name: set status to success
+        set_fact:
+          status: "success"
+          status_color: 255
+
+    rescue:
+      - name: set status to fail
+        set_fact:
+          status: "fail"
+          status_color: 16711680
+    always:
+    - name: send notification
+      ansible.builtin.include_role:
+        name: discord-bot
+
+
