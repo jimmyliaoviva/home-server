@@ -41,13 +41,13 @@
         docker_compose:
           project_src: "{{repo_path}}/app/prometheus/node_exporter"
           state: started
-        when: container_status == "false" or container_info.stdoutrc == ''
+        when: container_info.stdoutrc == ''
 
       - name: restart Docker Compose Service if it is running
         docker_compose:
           project_src: "{{repo_path}}/app/prometheus/node_exporter"
           state: restarted
-        when: container_info == "true"
+        when: container_status == "true"
 
       - name: set status to success
         set_fact:
