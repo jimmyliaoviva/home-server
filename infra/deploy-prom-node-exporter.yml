@@ -34,6 +34,7 @@
       - name: Parse Docker Container State
         set_fact:
           container_info: "{{ (container_info.stdout | from_json | json_query('[0].State.Running')) | default(false) }}"
+        ignore_errors: yes
         when: container_info.stdout is defined and container_info.rc == 0
 
       - name: Start Docker Compose Service
