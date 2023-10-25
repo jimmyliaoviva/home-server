@@ -33,15 +33,15 @@
       
       - name: Parse Docker Container State
         set_fact:
-          container_info: "{{ (container_info.stdout | from_json | json_query('[0].State.Running')) | default(false) }}"
+          container_status: "{{ (container_info.stdout | from_json | json_query('[0].State.Running')) | default(false) }}"
         ignore_errors: yes
-        when: container_info.stdout is defined and container_info.rc == 0
+        when: container_info.stdout is defined and container_info.stdout != ''
 
       - name: Start Docker Compose Service
         docker_compose:
           project_src: "{{repo_path}}/app/prometheus/node_exporter"
           state: started
-        when: container_info == "false" or container_info.rc != 0
+        when: container_status == "false" or container_info.stdoutrc == ''
 
       - name: restart Docker Compose Service if it is running
         docker_compose:
