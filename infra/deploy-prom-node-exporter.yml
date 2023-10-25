@@ -41,7 +41,7 @@
         docker_compose:
           project_src: "{{repo_path}}/app/prometheus/node_exporter"
           state: started
-        when: container_info.stdoutrc == ''
+        when: container_info.stdout == ''
 
       - name: restart Docker Compose Service if it is running
         docker_compose:
