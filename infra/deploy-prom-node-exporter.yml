@@ -27,7 +27,7 @@
         become: true
 
       - name: Check if node exporter Container Exists
-        command: docker inspect -f '{{.State.Running}}' node_exporter-node_exporter-1
+        command: docker inspect -f {{.State.Running}} node_exporter-node_exporter-1
         ignore_errors: yes
         register: container_status
 
