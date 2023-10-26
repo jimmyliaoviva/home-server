@@ -38,22 +38,25 @@
         when: container_info.stdout is defined and container_info.stdout != ''
 
       - name: Start Docker Compose Service
+      
         docker_compose:
-          project_src: "{{repo_path}}/app/prometheus/node_exporter"
-          state: present
+          shell: docker compose up -d
+        args:
+          chdir: "{{repo_path}}/app/prometheus/node_exporter"
+        become: true
         when: container_info.stdout == ''
 
-      - name: restart Docker Compose Service if it is running - stop
+      - name: restart Docker Compose Service if it is running
         docker_compose:
-          project_src: "{{repo_path}}/app/prometheus/node_exporter"
-          state: absent
+          shell: docker resart node_exporter-node_exporter-1
+        become: true
         when: container_status == "true"
 
-      - name: restart Docker Compose Service if it is running - start
-        docker_compose:
-          project_src: "{{repo_path}}/app/prometheus/node_exporter"
-          state: present
-        when: container_status == "true"
+      # - name: restart Docker Compose Service if it is running - start
+      #   docker_compose:
+      #     project_src: "{{repo_path}}/app/prometheus/node_exporter"
+      #     state: present
+      #   when: container_status == "true"
 
       - name: set status to success
         set_fact:
