@@ -6,7 +6,7 @@
   vars:
     playbook_title: "Deploy promethueus node exporter"
     playbook_description: "Deploy promethueus node exporter"
-
+    container_status: "false"
   tasks:
   - name: Deploy homer static files
     block:
