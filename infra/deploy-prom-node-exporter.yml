@@ -35,7 +35,7 @@
         set_fact:
           container_status: "{{ (container_info.stdout | from_json | json_query('[0].State.Running')) | default(false) }}"
         ignore_errors: yes
-        when: container_info.stdout is defined and container_info.stdout != ''
+        when: container_info is defined and container_info.stdout != ''
 
       - name: Start Docker Compose Service
         shell: docker compose up -d
