@@ -19,7 +19,13 @@ scrape_configs:
       - targets: ['localhost:9090']
   - job_name: 'Hardware'
     static_configs:
-      - targets: ['192.168.68.128:9100']
+      - targets: ['192.168.68.128:9100','192.168.68.120:9100']
         labels:
           instance: Maple
-
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'Maple:9100'
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'Kuro:9100'
