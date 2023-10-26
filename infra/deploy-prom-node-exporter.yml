@@ -27,7 +27,8 @@
         become: true
 
       - name: Check if node exporter Container Exists
-        shell: docker inspect node_exporter-node_exporter-1
+        shell: sudo docker inspect node_exporter-node_exporter-1
+        become: true
         ignore_errors: yes
         register: container_info
       
@@ -38,14 +39,14 @@
         when: container_info is defined and container_info.stdout != ''
 
       - name: Start Docker Compose Service
-        shell: docker compose up -d
+        shell: sudo docker compose up -d
         args:
           chdir: "{{repo_path}}/app/prometheus/node_exporter"
         become: true
         when: container_info is not defined 
 
       - name: restart Docker Compose Service if it is running
-        shell: docker resart node_exporter-node_exporter-1
+        shell: sudo docker resart node_exporter-node_exporter-1
         become: true
         when: container_info is defined and container_status == "true"
 
