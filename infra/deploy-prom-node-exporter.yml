@@ -49,12 +49,6 @@
         become: true
         when: container_status == "true"
 
-      # - name: restart Docker Compose Service if it is running - start
-      #   docker_compose:
-      #     project_src: "{{repo_path}}/app/prometheus/node_exporter"
-      #     state: present
-      #   when: container_status == "true"
-
       - name: set status to success
         set_fact:
           status: "success"
