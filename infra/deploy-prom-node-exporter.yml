@@ -43,7 +43,7 @@
         args:
           chdir: "{{repo_path}}/app/prometheus/node_exporter"
         become: true
-        when: container_status == "false"
+        when: container_status == "false" or container_status ==''
 
       - name: restart Docker Compose Service if it is running
         shell: sudo docker resart node_exporter-node_exporter-1
