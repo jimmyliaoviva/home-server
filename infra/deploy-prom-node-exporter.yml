@@ -38,17 +38,14 @@
         when: container_info.stdout is defined and container_info.stdout != ''
 
       - name: Start Docker Compose Service
-      
-        docker_compose:
-          shell: docker compose up -d
+        shell: docker compose up -d
         args:
           chdir: "{{repo_path}}/app/prometheus/node_exporter"
         become: true
         when: container_info.stdout == ''
 
       - name: restart Docker Compose Service if it is running
-        docker_compose:
-          shell: docker resart node_exporter-node_exporter-1
+        shell: docker resart node_exporter-node_exporter-1
         become: true
         when: container_status == "true"
 
