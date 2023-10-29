@@ -111,7 +111,7 @@ services:
         logo: "assets/tools/semaphore.png"
         subtitle: "automation, pipeline, CI/CD"
         tag: "ansible"
-        url: "https://semsphore.jimmylab.duckdns.org"
+        url: "https://semaphore.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
 
 
