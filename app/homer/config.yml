@@ -159,6 +159,12 @@ services:
         keywords: "file save"
         url: "https://adguard.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
+      - name: "Nginx Proxy Manager"
+        logo: "assets/tools/nginxManager.png"
+        subtitle: "Reverse proxy..."
+        tag: "proxy"
+        url: "https://nginx.jimmylab.duckdns.org/"
+        target: "_blank" # optional html a tag target attribute
 
   - name: "Game"
     icon: "fas fa-gamepad"
