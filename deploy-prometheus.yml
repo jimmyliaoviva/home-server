@@ -1,0 +1,72 @@
+- name: deploy prometheus
+  hosts: all
+  become: yes
+
+  vars:
+    playbook_title: "Backup Nextcloud"
+    playbook_description: "Nextcloud backup"
+
+  tasks:
+    - name: Start
+      become: yes
+      block:
+        - name: Get exporter container info
+          docker_container_info:
+            name: node_exporter-node_exporter-1
+          register: exporter_info
+          ignore_errors: yes
+
+        - name: Check if the exporter container exists
+          fail:
+            msg: "Container 'node_exporter-node_exporter-1' does not exist."
+          when: exporter_info == {}
+
+
+        - name: go to home server folder
+          ansible.builtin.command:
+            cmd: sudo nextcloud.export 
+          args: 
+            chdir: "{{repo_path}}/app/uptime_kuma"
+          register: result
+
+        - name: locate exported folder
+          ansible.builtin.find:
+            paths: "/var/snap/nextcloud/common/backups/" 
+            file_type: directory
+          register: folder_info
+
+        - name: delete old backup
+          ansible.builtin.file:
+            path: "/var/snap/nextcloud/common/backups/nextcloud_backup.tar.gz"
+            state: absent
+          ignore_errors: true
+
+        - name: change folder owner
+          ansible.builtin.command:
+            cmd: sudo chown -R jimmy:jimmy "{{ folder_info.files[0].path }}"
+
+        - name: tar exported folder
+          ansible.builtin.archive:
+            path: "{{ folder_info.files[0].path }}"
+            dest: "/var/snap/nextcloud/common/backups/nextcloud_backup.tar.gz"
+            format: gz
+          
+        - name: delete exported folder
+          ansible.builtin.file:
+            path: "{{ folder_info.files[0].path }}"
+            state: absent
+
+        - name: set status to success
+          set_fact:
+            status: "success"
+            status_color: 255
+
+      rescue:
+        - name: set status to fail
+          set_fact:
+            status: "fail"
+            status_color: 16711680
+      always:
+      - name: send notification
+        ansible.builtin.include_role:
+          name: discord-bot
