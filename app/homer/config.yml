@@ -92,7 +92,7 @@ services:
         subtitle: "VMs and whatever"
         tag: "infra"
         keywords: "Integrate console"
-        url: "https://192.168.68.104:8006/"
+        url: "https://proxmox.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
       - name: "Promxox2"
         logo: "assets/tools/proxmox.png"
@@ -105,13 +105,13 @@ services:
         logo: "assets/tools/portainer.png"
         subtitle: "Where dockers dock"
         tag: "dockers"
-        url: "https://192.168.68.124:9443/"
+        url: "https://portainer.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
       - name: "Ansible Semaphore"
         logo: "assets/tools/semaphore.png"
         subtitle: "automation, pipeline, CI/CD"
         tag: "ansible"
-        url: "http://192.168.68.125:3000/"
+        url: "https://semsphore.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
 
 
@@ -130,7 +130,7 @@ services:
         subtitle: "All in one remote control"
         tag: "app"
         keywords: "smart home"
-        url: "http://192.168.68.127:8123/"
+        url: "https://homeassistant.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
       - name: "owntone"
         logo: "assets/tools/owntone.svg"
@@ -144,7 +144,7 @@ services:
         subtitle: "Service monitor"
         tag: "monitor"
         keywords: "monitor"
-        url: "http://192.168.68.128:3001/"
+        url: "https://uptimekuma.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
 
 
@@ -157,7 +157,7 @@ services:
         subtitle: "No more ADs"
         tag: "DNS"
         keywords: "file save"
-        url: "http://192.168.68.126/"
+        url: "https://adguard.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
 
   - name: "Game"
