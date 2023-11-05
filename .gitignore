@@ -8,4 +8,4 @@ ovpn-admin
 
 
 # exclude .gitkeep files
-!.gitkeep
+!**.gitkeep

@@ -25,5 +25,5 @@ services:
     restart: unless-stopped
     volumes:
       # attach a directory relative to the directory containing this compose file
-      - ./config/work:/opt/adguardhome/work
-      - ./config/conf:/opt/adguardhome/conf
+      - ./data/work:/opt/adguardhome/work
+      - ./data/conf:/opt/adguardhome/conf
