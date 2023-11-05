@@ -1,4 +1,10 @@
-**/config/*
+# app settings and configuration files is put in config folder
+# app data puts in data folder, and will not be tracked by git
+**/data/*
 **/backup/*
 ovpn-admin
 **/.env
+
+
+# exclude .gitkeep files
+!.gitkeep
