@@ -8,7 +8,7 @@ services:
       - 8123:8123
     volumes:
       # attach a directory relative to the directory containing this compose file
-      - /home/jimmy/Projects/minecraft_test/config:/data
+      - /home/jimmy/Projects/minecraft_test/data:/data
     environment:
       EULA: "TRUE"
       VERSION: 1.19.4
