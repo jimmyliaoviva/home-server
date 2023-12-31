@@ -1,0 +1,11 @@
+version: '1'
+
+services:
+  imaginary:
+    image: nextcloud/aio-imaginary
+    container_name: IMAGINARY
+    ports:
+      - "127.0.0.1:9000:9000"
+    cap_add:
+      - sys_nice
+    restart: always
