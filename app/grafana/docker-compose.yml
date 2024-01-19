@@ -6,5 +6,6 @@ services:
     restart: unless-stopped
     ports:
      - '3443:3000'
+    user: "${UID:-1000}"  # Set to the current user's UID, default to 1000 if not set
     volumes:
       - ./data:/var/lib/grafana
