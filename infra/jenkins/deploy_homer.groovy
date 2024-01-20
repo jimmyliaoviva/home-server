@@ -14,9 +14,10 @@ pipeline {
                 script {
                     dir ('home-server/infra/ansible') {
                         sshagent(credentials: ['portainer']) {
-                        // withCredentials([sshUserPrivateKey(credentialsId: 'portainer', keyFileVariable: 'SSH_KEY')]) {
-                            sh 'ansible-playbook -i inventory deploy-homer-playbook.yml'
+                                withCredentials(string(credentialsId: 'portainer_password', variable: 'PASS')) {
 
+                            sh 'ansible-playbook -i inventory deploy-homer-playbook.yml -e "ansible_become_pass=${PASS}"'
+                            }
                         }
                     }
                 }
