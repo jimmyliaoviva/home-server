@@ -8,7 +8,7 @@ services:
       - DOCKER_CERT_PATH=/certs/client
       - DOCKER_TLS_VERIFY=1
     ports:
-      - 8443:8000
+      - 8443:8080
       - 50000:50000
     volumes:
       - ./data:/var/jenkins_home
