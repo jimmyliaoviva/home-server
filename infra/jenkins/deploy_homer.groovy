@@ -16,7 +16,7 @@ pipeline {
                         withCredentials([sshUserPrivateKey(credentialsId: 'portainer', keyFileVariable: 'SSH_KEY')]) {
                             sh 'echo "$SSH_KEY" > ansible.pem'
                         }
-                        sh 'ansible-playbook -i inventory deploy-homer-playbook.yml'
+                        sh 'ansible-playbook -i inventory deploy-homer-playbook.yml --private-key=ansible.pem'
                     }
                 }
             }
