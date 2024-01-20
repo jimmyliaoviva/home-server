@@ -17,7 +17,7 @@
           version: main
           update: yes
           key_file: ~/.ssh/github2023
-        become: true
+        # become: true
 
       - name: set status to success
         set_fact:
