@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  jenkins:
+  jenkins-ansible:
     image: jimmy/jenkins-ansible
     restart: always
     environment:
@@ -8,7 +8,7 @@ services:
       - DOCKER_CERT_PATH=/certs/client
       - DOCKER_TLS_VERIFY=1
     ports:
-      - 8080:8080
+      - 8443:8000
       - 50000:50000
     volumes:
       - ./data:/var/jenkins_home
