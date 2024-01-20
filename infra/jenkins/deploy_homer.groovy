@@ -15,8 +15,10 @@ pipeline {
                     dir ('home-server/infra/ansible') {
                         withCredentials([sshUserPrivateKey(credentialsId: 'portainer', keyFileVariable: 'SSH_KEY')]) {
                             sh 'echo "$SSH_KEY" > ansible.pem'
+                            sh 'chmod 600 ansible.pem'
+                            sh 'ansible-playbook -i inventory deploy-homer-playbook.yml --private-key=ansible.pem'
+
                         }
-                        sh 'ansible-playbook -i inventory deploy-homer-playbook.yml --private-key=ansible.pem'
                     }
                 }
             }
