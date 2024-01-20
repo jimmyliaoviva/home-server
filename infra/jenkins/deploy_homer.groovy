@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     dir ('home-server') {
-                        sh 'ansible-playbook -i infra//inventory infra/deploy-homer-playbook.yml'
+                        sh 'ansible-playbook ./infra/deploy-homer-playbook.yml'
                     }
                 }
             }
