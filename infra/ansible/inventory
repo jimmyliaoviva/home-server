@@ -1,0 +1,6 @@
+[portainer]
+192.168.68.124 ansible_user=jimmy
+
+[portainer2]
+192.168.68.126 ansible_user=jimmy
+

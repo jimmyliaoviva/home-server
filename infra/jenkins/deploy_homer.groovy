@@ -5,13 +5,17 @@ pipeline {
             steps {
                 sh 'mkdir -p home-server'
                 dir ('home-server') {
-                    git branch: 'master', credentialsId: 'jimmyliaoviva', url: 'git@github.com:jimmyliaoviva/home-server.git'
+                    git branch: 'master', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
                 }
             }
         }
         stage('run deploy playbook') {
             steps {
-                sh 'ansible-playbook -i infra/jenkins/inventory infra/ansible/deploy_homer.yml'
+                script {
+                    dir ('home-server') {
+                        sh 'ansible-playbook -i infra//inventory infra/deploy-homer-playbook.yml'
+                    }
+                }
             }
         }
     }
