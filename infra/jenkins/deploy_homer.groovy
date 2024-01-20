@@ -5,7 +5,7 @@ pipeline {
             steps {
                 sh 'mkdir -p home-server'
                 dir ('home-server') {
-                    git branch: 'main', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
+                    git branch: 'JT-7_add_jenkins-ansible', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
                 }
             }
         }
