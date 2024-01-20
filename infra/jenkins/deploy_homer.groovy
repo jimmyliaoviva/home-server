@@ -13,9 +13,9 @@ pipeline {
             steps {
                 script {
                     dir ('home-server/infra/ansible') {
-                        withCredentials([sshUserPrivateKey(credentialsId: 'portainer', keyFileVariable: 'SSH_KEY')]) {
-                            sh echo '$SSH_KEY'
-                            sh 'ansible-playbook -i inventory deploy-homer-playbook.yml --private-key=$SSH_KEY'
+                        sshagent(credentials: ['portainer']) {
+                        // withCredentials([sshUserPrivateKey(credentialsId: 'portainer', keyFileVariable: 'SSH_KEY')]) {
+                            sh 'ansible-playbook -i inventory deploy-homer-playbook.yml'
 
                         }
                     }
