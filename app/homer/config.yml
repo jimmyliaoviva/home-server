@@ -113,6 +113,12 @@ services:
         tag: "ansible"
         url: "https://semaphore.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
+      - name: "Jenkins"
+        logo: "assets/tools/jenkins.jpg"
+        subtitle: "Old mad man"
+        tag: "Jenkins"
+        url: "https://jenkins.jimmylab.duckdns.org"
+        target: "_blank" # optional html a tag target attribute
 
 
   - name: "Application"
@@ -145,6 +151,13 @@ services:
         tag: "monitor"
         keywords: "monitor"
         url: "https://uptimekuma.jimmylab.duckdns.org"
+        target: "_blank" # optional html a tag target attribute
+      - name: "Grafana"
+        logo: "assets/tools/grafana.png"
+        subtitle: "Service monitor"
+        tag: "monitor"
+        keywords: "monitor"
+        url: "https://grafana.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
 
 
