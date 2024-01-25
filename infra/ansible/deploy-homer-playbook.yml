@@ -2,7 +2,7 @@
 # ansible playbook
 
 - name: update homer static files
-  hosts: all
+  hosts: portainer
   vars:
     playbook_title: "Deploy homer static files"
     playbook_description: "Homer deployment"
@@ -17,7 +17,7 @@
           version: main
           update: yes
           key_file: ~/.ssh/github2023
-        become: true
+        # become: true
 
       - name: set status to success
         set_fact:

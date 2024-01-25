@@ -5,13 +5,22 @@ pipeline {
             steps {
                 sh 'mkdir -p home-server'
                 dir ('home-server') {
-                    git branch: 'master', credentialsId: 'jimmyliaoviva', url: 'git@github.com:jimmyliaoviva/home-server.git'
+                    git branch: 'main', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
                 }
             }
         }
         stage('run deploy playbook') {
             steps {
-                sh 'ansible-playbook -i infra/jenkins/inventory infra/ansible/deploy_homer.yml'
+                script {
+                    dir ('home-server/infra/ansible') {
+                        sshagent(credentials: ['portainer']) {
+                                withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS')]) {
+
+                            sh 'ansible-playbook -i inventory deploy-homer-playbook.yml -e "ansible_become_pass=${PASS}"'
+                            }
+                        }
+                    }
+                }
             }
         }
     }
