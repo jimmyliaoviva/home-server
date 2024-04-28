@@ -19,9 +19,9 @@ pipeline {
                             sh '''
                                 echo "${SSH_KEY}" > temp_key.pem
                             '''
-                            sh '''ansible-playbook -i inventory deploy-finmind-playbook.yml \
-                                -e "ansible_become_pass=${PASS} github_key=./temp_key.pem" 
-                                '''
+                            sh """ansible-playbook -i inventory deploy-finmind-playbook.yml \
+                                -e "ansible_become_pass=${PASS} github_key=${workspace}/home-server/infra/ansible/temp_key.pem" 
+                                """
                                 }
                         }
                     }
