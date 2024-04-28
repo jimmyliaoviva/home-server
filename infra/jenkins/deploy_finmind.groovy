@@ -15,12 +15,12 @@ pipeline {
                     dir ('home-server/infra/ansible') {
                         sshagent(credentials: ['portainer2']) {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS'),
-                                                sshUserPrivateKey(credentialsId: 'github', keyFileVariable: 'SSH_KEY')]) {
+                                                file(credentialsId: 'github_key', variable: 'SSH_KEY')]) {
                             sh '''
                                 echo "${SSH_KEY}" > temp_key.pem
                             '''
                             sh """ansible-playbook -i inventory deploy-finmind-playbook.yml \
-                                -e "ansible_become_pass=${PASS} github_key=${workspace}/home-server/infra/ansible/temp_key.pem" 
+                                -e "ansible_become_pass=${PASS} github_key=${SSH_KEY}" 
                                 """
                                 }
                         }
