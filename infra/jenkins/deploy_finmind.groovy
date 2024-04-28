@@ -17,7 +17,7 @@ pipeline {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS'),
                                                 sshUserPrivateKey(credentialsId: 'github', variable: 'SSH_KEY')]) {
                             sh '''
-                                echo "$SSH_KEY" > temp_key.pem
+                                echo "${SSH_KEY}" > temp_key.pem
                                 chmod 600 temp_key.pem
                             '''
                             sh '''ansible-playbook -i inventory deploy-finmind-playbook.yml \
