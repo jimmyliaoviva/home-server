@@ -1,18 +1,18 @@
 pipeline {
     agent any
     stages {
-        // stage('checkout') {
-        //     steps {
-        //         sh 'mkdir -p finmind'
-        //         dir ('finmind') {
-        //             git branch: 'JT-9_add_finmind', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
-        //         }
-        //     }
-        // }
+        stage('checkout') {
+            steps {
+                sh 'mkdir -p home-server'
+                dir ('home-server') {
+                    git branch: 'JT-9_add_finmind', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
+                }
+            }
+        }
         stage('run deploy playbook') {
             steps {
                 script {
-                    dir ('finmind/home-server/infra/ansible') {
+                    dir ('/home-server/infra/ansible') {
                         sshagent(credentials: ['portainer2']) {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS')]) {
                             sh '''
