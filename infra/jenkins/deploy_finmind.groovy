@@ -1,14 +1,14 @@
 pipeline {
     agent any
     stages {
-        stage('checkout') {
-            steps {
-                sh 'mkdir -p finmind'
-                dir ('finmind') {
-                    git branch: 'JT-9_add_finmind', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
-                }
-            }
-        }
+        // stage('checkout') {
+        //     steps {
+        //         sh 'mkdir -p finmind'
+        //         dir ('finmind') {
+        //             git branch: 'JT-9_add_finmind', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
+        //         }
+        //     }
+        // }
         stage('run deploy playbook') {
             steps {
                 script {
