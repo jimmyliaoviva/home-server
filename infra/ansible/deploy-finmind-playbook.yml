@@ -10,7 +10,7 @@
   - name: pull repository
     git:
       repo: "{{repo_url}}"
-      dest: "{{homer_path}}"
+      dest: "{{repo_path}}"
       version: main
       update: yes
       key_file: "{{ github_key }}"
