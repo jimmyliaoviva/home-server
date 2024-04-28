@@ -12,7 +12,7 @@ pipeline {
         stage('run deploy playbook') {
             steps {
                 script {
-                    dir ('home-server/infra/ansible') {
+                    dir ('finmind/home-server/infra/ansible') {
                         sshagent(credentials: ['portainer2']) {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS')]) {
                             sh '''
