@@ -21,7 +21,7 @@ pipeline {
                             '''
                             sh '''ansible-playbook -i inventory deploy-finmind-playbook.yml \
                                 -e "ansible_become_pass=${PASS}" \
-                                -e "github_key='''+ temp_key.pem + '''"
+                                -e "github_key=temp_key.pem"
                                 '''
                                 }
                         }
