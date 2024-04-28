@@ -13,7 +13,7 @@
       dest: "{{homer_path}}"
       version: main
       update: yes
-      key_file: "{{ key_file }}"
+      key_file: "{{ github_key }}"
     # become: true
 
   - name: Create network
