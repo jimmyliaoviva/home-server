@@ -15,7 +15,7 @@ pipeline {
                     dir ('home-server/infra/ansible') {
                         sshagent(credentials: ['portainer2']) {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS'),
-                                                file(credentialsId: 'github_key', keyFileVariable: 'SSH_KEY')]) {
+                                                file(credentialsId: 'github_key', variable: 'SSH_KEY')]) {
                             sh '''
                                 chmod 777 "${SSH_KEY}"
                                 ls -l "${SSH_KEY}" 
