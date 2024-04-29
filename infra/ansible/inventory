@@ -6,4 +6,3 @@
 
 [portainer2:vars]
 repo_path=/home/jimmy/home-server/
-ssh_args=-o ForwardAgent=yes
