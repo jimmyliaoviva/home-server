@@ -15,7 +15,7 @@
 
 # services
 
-* mysql: http://localhost:8080/
+* mysql: http://localhost:8000/
     * user : finmind
     * password : test
 * flower: http://localhost:5555/

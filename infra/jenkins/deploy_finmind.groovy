@@ -5,7 +5,7 @@ pipeline {
             steps {
                 sh 'mkdir -p home-server'
                 dir ('home-server') {
-                    git branch: 'JT-9_add_finmind', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
+                    git branch: 'main', credentialsId: 'github', url: 'git@github.com:jimmyliaoviva/home-server.git'
                 }
             }
         }
@@ -16,7 +16,7 @@ pipeline {
                         sshagent(credentials: ['portainer2', 'github']) {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS')]) {
                             sh """ansible-playbook -i inventory deploy-finmind-playbook.yml \
-                                -e "ansible_become_pass=${PASS}" 
+                                -e "ansible_become_pass=${PASS}"
                                 """
                                 }
                         }
