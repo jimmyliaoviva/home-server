@@ -26,6 +26,8 @@ services:
 
   finmind-phpmyadmin:
       image: phpmyadmin/phpmyadmin:5.1.0
+      environment:
+        PMA_HOST: db
       links: 
           - finmind-mysql:db
       ports:
