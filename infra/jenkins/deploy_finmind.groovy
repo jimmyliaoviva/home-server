@@ -19,7 +19,7 @@ pipeline {
                             sh '''
                                 chmod 777 "${SSH_KEY}"
                                 ls -l "${SSH_KEY}" 
-                                cat "${SSH_KEY}"
+                                echo "${SSH_KEY}"
                             '''
                             sh """ansible-playbook -i inventory deploy-finmind-playbook.yml \
                                 -e "ansible_become_pass=${PASS} github_key='${SSH_KEY}'" 
