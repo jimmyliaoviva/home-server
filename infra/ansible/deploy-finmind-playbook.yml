@@ -16,7 +16,7 @@
       dest: "{{repo_path}}"
       version: main
       update: yes
-      key_file: "{{ github_key }}"
+      # key_file: "{{ github_key }}"
     # become: true
 
   - name: Create network
