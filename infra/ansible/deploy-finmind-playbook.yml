@@ -1,0 +1,44 @@
+---
+# ansible playbook
+- name: Deploy finmind
+  hosts: portainer2
+  vars:
+    playbook_title: "Deploy finmind"
+    playbook_description: "Finmind deployment"
+
+  tasks:
+  - name: pull repository
+    git:
+      repo: "{{repo_url}}"
+      dest: "{{repo_path}}"
+      version: main
+      update: yes
+      # key_file: "{{ github_key }}"
+    # become: true
+
+  - name: Create network
+    shell: make create-network
+    args:
+      chdir: "{{repo_path}}/app/finmind/"
+
+  - name: Install mysql
+    shell: make mysql-up
+    args:
+      chdir: "{{repo_path}}/app/finmind/"
+
+  - name: Install rabbitmq
+    shell: make rabbitmq-up
+    args:
+      chdir: "{{repo_path}}/app/finmind/"
+
+  - name: Install redash
+    shell: make redash-up
+    args:
+      chdir: "{{repo_path}}/app/finmind/"
+  
+  - name: Install finmind
+    shell: make finmind-up
+    args:
+      chdir: "{{repo_path}}/app/finmind/"
+
+
