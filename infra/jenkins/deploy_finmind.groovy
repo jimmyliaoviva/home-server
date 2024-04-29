@@ -18,7 +18,7 @@ pipeline {
                                                 file(credentialsId: 'github_key', keyFileVariable: 'SSH_KEY')]) {
                             sh '''
                                 cp "${SSH_KEY}"  temp_key.pem
-                                cat temp_key.pem
+                                chmod 600 temp_key.pem
                             '''
                             sh """ansible-playbook -i inventory deploy-finmind-playbook.yml \
                                 -e "ansible_become_pass=${PASS} github_key=temp_key.pem" 
