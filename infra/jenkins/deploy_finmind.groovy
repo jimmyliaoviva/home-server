@@ -17,7 +17,7 @@ pipeline {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS'),
                                                 file(credentialsId: 'github_key', variable: 'SSH_KEY')]) {
                             sh '''
-                                chmod 600 "${SSH_KEY}"
+                                chmod 777 "${SSH_KEY}"
                                 ls -l "${SSH_KEY}" 
                                 cat "${SSH_KEY}"
                             '''
