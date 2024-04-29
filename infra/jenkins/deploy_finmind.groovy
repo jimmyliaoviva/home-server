@@ -17,7 +17,7 @@ pipeline {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS'),
                                                 file(credentialsId: 'github_key', variable: 'SSH_KEY')]) {
                             sh '''
-                                echo "${SSH_KEY}" 
+                                ls -l "${SSH_KEY}" 
                             '''
                             sh """ansible-playbook -i inventory deploy-finmind-playbook.yml \
                                 -e "ansible_become_pass=${PASS} github_key=${SSH_KEY}" 
