@@ -17,7 +17,7 @@ pipeline {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS'),
                                                 sshUserPrivateKey(credentialsId: 'github_key', keyFileVariable: 'SSH_KEY')]) {
                             sh '''
-                                cp "${SSH_KEY}" > temp_key.pem
+                                cp "${SSH_KEY}"  temp_key.pem
                                 cat temp_key.pem
                             '''
                             sh """ansible-playbook -i inventory deploy-finmind-playbook.yml \
