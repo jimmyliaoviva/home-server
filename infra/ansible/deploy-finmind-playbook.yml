@@ -7,9 +7,6 @@
     playbook_description: "Finmind deployment"
 
   tasks:
-  - debug:
-      msg: "{{ github_key }}"
-
   - name: pull repository
     git:
       repo: "{{repo_url}}"
