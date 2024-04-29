@@ -15,11 +15,6 @@ pipeline {
                     dir ('home-server/infra/ansible') {
                         sshagent(credentials: ['portainer2', 'github']) {
                                 withCredentials([string(credentialsId: 'portainer_password', variable: 'PASS')]) {
-                            sh '''
-                                chmod 777 "${SSH_KEY}"
-                                ls -l "${SSH_KEY}" 
-                                echo "${SSH_KEY}"
-                            '''
                             sh """ansible-playbook -i inventory deploy-finmind-playbook.yml \
                                 -e "ansible_become_pass=${PASS}" 
                                 """
