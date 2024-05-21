@@ -31,5 +31,8 @@ scrape_configs:
       - targets: ['192.168.68.123:9100']
         labels:
           instance: 'laptop'
-          
+  
+  - job_name: 'OpenVPN'
+    static_configs:
+      - targets: ['192.168.68.126:8080']
 
