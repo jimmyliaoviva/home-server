@@ -8,7 +8,7 @@ services:
     image: openvpn:local
     command: /etc/openvpn/setup/configure.sh
     environment:
-      OVPN_SERVER_NET: "192.168.100.0"
+      OVPN_SERVER_NET: "192.168.68.0"
       OVPN_SERVER_MASK: "255.255.255.0"
       OVPN_PASSWD_AUTH: "true"
     cap_add:
@@ -27,7 +27,7 @@ services:
     environment:
       OVPN_DEBUG: "true"
       OVPN_VERBOSE: "true"
-      OVPN_NETWORK: "192.168.100.0/24"
+      OVPN_NETWORK: "192.168.68.0/24"
       OVPN_CCD: "true"
       OVPN_CCD_PATH: "/mnt/ccd"
       EASYRSA_PATH: "/mnt/easyrsa"
