@@ -1,0 +1,16 @@
+# Please store password in .env file
+version: "2.1"
+services:
+  couchdb:
+    image: couchdb:latest
+    container_name: obsidian-livesync
+    user: 1000:1000
+    environment:
+      - COUCHDB_USER=jimmy
+      - COUCHDB_PASSWORD=${password}
+    volumes:
+      - ./data:/opt/couchdb/data
+      - ./local.ini:/opt/couchdb/etc/local.ini
+    ports:
+    - 5984:5984
+    restart: unless-stopped
