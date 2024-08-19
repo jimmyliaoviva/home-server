@@ -5,7 +5,7 @@
 **/backup/*
 ovpn-admin
 **/.env
-
+**/modpacks/*
 
 # exclude .gitkeep files
 !.gitkeep
