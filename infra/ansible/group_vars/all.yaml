@@ -1,6 +1,6 @@
 repo_url: "git@github.com:jimmyliaoviva/home-server.git"
 homer_path: "/home/jimmy/home-server/"
-discord_webhook_url: !vault | 
+discord_webhook_url: !vault |
       $ANSIBLE_VAULT;1.1;AES256
       61353962303738613663386364666263393331636534346564333763646561663162643335323730
       6333653331396261343535323466633365366634613933620a646661396661363833306336356434

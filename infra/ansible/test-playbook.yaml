@@ -1,33 +1,13 @@
 - name: test playbook
-  hosts: all
+  hosts: localhost
 
   tasks:
   - name: hello world
     debug:
       msg: "Hello world!"
 
-  - name: get first file name
-    ansible.builtin.find:
-      paths: "/var/snap/nextcloud/common/backups/"  # Replace with the path to the folder you want to get the name of
-      file_type: directory
-    register: folder_info
-
-  - name: print file name
-    debug:
-      msg: "{{ folder_info.files[0].path}}"
-
-  - name: set status to fail
-    set_fact:
-      status: "FAILED"
-      status_color: 16711680
-
-
-  - name: Run command
-    ansible.builtin.command:
-      cmd: sudo nextcloud.export 
-    register: result
-    async: 300  # Set the async timeout (in seconds) for the command to 300 seconds (adjust as needed)
-    poll: 5  
+  - debug:
+      msg: "{{repo_url }}"
 
   - debug:
-      msg: "{{result.stdout }}"
+      msg: "{{ discord_webhook_url }}"
