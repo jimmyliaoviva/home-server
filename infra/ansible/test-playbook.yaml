@@ -1,5 +1,5 @@
 - name: test playbook
-  hosts: localhost
+  hosts: local
 
   tasks:
   - name: hello world
