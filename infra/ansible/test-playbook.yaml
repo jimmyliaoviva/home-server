@@ -1,5 +1,5 @@
 - name: test playbook
-  hosts: local
+  hosts: kuro
 
   tasks:
   - name: hello world
