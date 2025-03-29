@@ -1,5 +1,5 @@
 - name: backup nextcloud
-  hosts: all
+  hosts: kuro
   become: yes
 
   vars:
