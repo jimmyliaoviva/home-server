@@ -4,5 +4,8 @@
 [portainer2]
 192.168.68.126 ansible_user=jimmy
 
+[protainer2]
+192.168.68.182 ansible_user=jimmy
+
 [portainer2:vars]
 repo_path=/home/jimmy/home-server
