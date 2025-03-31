@@ -1,0 +1,16 @@
+services:
+    semaphore:
+        ports:
+            - 3000:3000
+        image: semaphoreui/semaphore:v2.13.5
+        environment:
+            - .env
+        volumes:
+            - semaphore_data:/var/lib/semaphore
+            - semaphore_config:/etc/semaphore
+            - semaphore_tmp:/tmp/semaphore
+        restart: always
+volumes:
+    semaphore_data:
+    semaphore_config:
+    semaphore_tmp:
