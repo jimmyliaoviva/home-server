@@ -1,0 +1,18 @@
+services:
+  mc:
+    image: itzg/minecraft-server
+    tty: true
+    stdin_open: true
+    ports:
+      - "25565:25565"
+      - "8804:8804"
+      - "8100:8100"
+    environment:
+      EULA: "TRUE"
+      MEMORY: 32G
+      TYPE: "SPIGOT"
+      VERSION: 1.21.5
+      SPIGET_RESOURCES: 83557,32536,59550
+    volumes:
+      # attach the relative directory 'data' to the container's /data path
+      - ./data:/data
