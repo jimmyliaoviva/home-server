@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui:/app/backend/data
+
+    networks:
+      - openwebui-network
+
+  mcpo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcpo
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./mcpo-config.json:/app/mcpo-config.json
+      - mcpo-data:/tmp
+    command: ["--port", "8000", "--config", "/app/mcpo-config.json"]
+
+volumes:
+  open-webui:
+  mcpo-data:
+
+networks:
+  openwebui-network:
+    driver: bridge
+
