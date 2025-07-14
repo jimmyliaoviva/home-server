@@ -20,7 +20,7 @@ services:
     container_name: mcpo
     restart: always
     ports:
-      - "8000:8000"
+      - "3080:8000"
     volumes:
       - ./mcpo-config.json:/app/mcpo-config.json
       - mcpo-data:/tmp
