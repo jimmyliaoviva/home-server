@@ -19,12 +19,12 @@ services:
       dockerfile: Dockerfile
     container_name: mcpo
     restart: always
-    ports:
-      - "3080:8000"
     volumes:
       - ./mcpo-config.json:/app/mcpo-config.json
       - mcpo-data:/tmp
     command: ["--port", "8000", "--config", "/app/mcpo-config.json"]
+    networks:
+      - openwebui-network
 
 volumes:
   open-webui:
