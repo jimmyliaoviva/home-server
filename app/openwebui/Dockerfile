@@ -25,9 +25,6 @@ RUN npm install -g @modelcontextprotocol/server-memory
 # Copy custom MCP servers
 COPY mcp-servers/ /app/mcp-servers/
 
-# Make Python scripts executable
-RUN chmod +x /app/mcp-servers/naver-map/*.py
-
 # Install Python dependencies for custom MCP servers (optional)
 # RUN cd /app/mcp-servers/naver-map && pip install -r requirements.txt 
 
