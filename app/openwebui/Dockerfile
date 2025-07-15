@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     nodejs \
     npm \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv for fast Python package management
@@ -20,16 +21,25 @@ RUN pip install uv
 RUN pip install mcpo
 
 # Install Node.js packages globally for MCP servers
-RUN npm install -g @modelcontextprotocol/server-memory 
-
-# Copy custom MCP servers
-COPY mcp-servers/ /app/mcp-servers/
-
-# Install Python dependencies for custom MCP servers (optional)
-# RUN cd /app/mcp-servers/naver-map && pip install -r requirements.txt 
+RUN npm install -g @modelcontextprotocol/server-memory
 
 # Create a non-root user for security
-RUN useradd -m -u 1000 mcpo && chown -R mcpo:mcpo /app
+RUN useradd -m -u 1000 mcpo
+
+# Copy custom MCP servers and set ownership
+COPY mcp-servers/ /app/mcp-servers/
+RUN chown -R mcpo:mcpo /app
+
+# Install Python MCP servers using uvx (which comes with uv) for the mcpo user
+# Pre-install commonly used MCP servers to avoid runtime installation delays
+USER mcpo
+RUN uv tool install mcp-server-time
+RUN uv tool install awslabs.aws-documentation-mcp-server
+
+# Ensure uvx is available in PATH for the mcpo user
+ENV PATH="/home/mcpo/.local/bin:$PATH"
+
+# Switch back to mcpo user
 USER mcpo
 
 # Expose the default port
