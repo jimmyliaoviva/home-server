@@ -75,6 +75,8 @@ if docker-compose ps | grep -q "Up"; then
     echo "📋 可用的 MCP 服務："
     echo "   Memory Server:       http://localhost:8000/memory"
     echo "   Time Server:         http://localhost:8000/time"
+    echo "   AWS Documentation:   http://localhost:8000/awslabs.aws-documentation-mcp-server"
+    echo "   Terraform Server:    http://localhost:8000/terraform"
     echo ""
     echo "📖 使用說明："
     echo "   1. 打開 http://localhost:3000 訪問 Open WebUI"

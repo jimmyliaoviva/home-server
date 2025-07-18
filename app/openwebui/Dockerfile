@@ -4,7 +4,7 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including Go
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -12,7 +12,15 @@ RUN apt-get update && apt-get install -y \
     nodejs \
     npm \
     ca-certificates \
+    wget \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Go
+ENV GO_VERSION=1.21.5
+RUN wget -O go.tar.gz "https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz" \
+    && tar -C /usr/local -xzf go.tar.gz \
+    && rm go.tar.gz
+ENV PATH="/usr/local/go/bin:$PATH"
 
 # Install uv for fast Python package management
 RUN pip install uv
@@ -25,6 +33,11 @@ RUN npm install -g @modelcontextprotocol/server-memory
 
 # Create a non-root user for security
 RUN useradd -m -u 1000 mcpo
+
+# Install Terraform MCP server using Go and make it accessible to mcpo user
+RUN go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest \
+    && cp /root/go/bin/terraform-mcp-server /usr/local/bin/ \
+    && chmod +x /usr/local/bin/terraform-mcp-server
 
 # Copy custom MCP servers and set ownership
 COPY mcp-servers/ /app/mcp-servers/

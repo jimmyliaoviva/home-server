@@ -56,11 +56,13 @@ MCPO is a simple, secure MCP-to-OpenAPI proxy server that exposes any MCP tool a
    ```
    Memory Server: http://mcpo:8000/memory
    Time Server: http://mcpo:8000/time
+   AWS Documentation: http://mcpo:8000/awslabs.aws-documentation-mcp-server
+   Terraform Server: http://mcpo:8000/terraform
    ```
 
    **注意**：在 Docker 網路中，使用容器名稱 `mcpo` 而不是 `localhost`
 
-3. **設定 API 金鑰**：
+3. **設定 API 金鑰(如果是在 Docker 網路之中可以考慮不用)**：
    - 在每個函數設定中，添加 Authentication
    - 選擇 "API Key" 認證類型
    - Header Name: `Authorization`
@@ -82,6 +84,14 @@ MCPO is a simple, secure MCP-to-OpenAPI proxy server that exposes any MCP tool a
    Name: MCPO Time  
    URL: http://mcpo:8000/time
    API Key: Bearer top-secret
+   
+   Name: MCPO AWS Documentation
+   URL: http://mcpo:8000/awslabs.aws-documentation-mcp-server
+   API Key: Bearer top-secret
+   
+   Name: MCPO Terraform
+   URL: http://mcpo:8000/terraform
+   API Key: Bearer top-secret
    ```
 
 ## Configuration
@@ -99,14 +109,20 @@ The configuration includes multiple MCP servers:
 
 1. **Memory Server** (`/memory`) - Provides persistent memory capabilities
 2. **Time Server** (`/time`) - Provides time-related tools with Asia/Taipei timezone
+3. **AWS Documentation Server** (`/awslabs.aws-documentation-mcp-server`) - Provides access to AWS documentation and resources
+4. **Terraform Server** (`/terraform`) - Provides Terraform documentation and provider discovery
 
 Each server is accessible at:
 - http://localhost:8000/memory
 - http://localhost:8000/time
+- http://localhost:8000/awslabs.aws-documentation-mcp-server
+- http://localhost:8000/terraform
 
 Interactive documentation for each server:
 - http://localhost:8000/memory/docs
 - http://localhost:8000/time/docs
+- http://localhost:8000/awslabs.aws-documentation-mcp-server/docs
+- http://localhost:8000/terraform/docs
 
 ### MCP Configuration
 
@@ -183,15 +199,14 @@ docker-compose up -d --build
 
 ### Available MCP Servers
 
-Popular MCP servers you can add to your configuration:
+Currently configured MCP servers:
 
-- `@modelcontextprotocol/server-memory` - Persistent memory
-- `@modelcontextprotocol/server-filesystem` - File operations
-- `@modelcontextprotocol/server-brave-search` - Web search
-- `@modelcontextprotocol/server-sqlite` - Database operations
-- `@modelcontextprotocol/server-github` - GitHub integration
-- `@modelcontextprotocol/server-slack` - Slack integration
-- `mcp-server-time` - Time and date utilities
+- `@modelcontextprotocol/server-memory` - Persistent memory ✅ **已配置**
+- `mcp-server-time` - Time and date utilities ✅ **已配置**
+- `awslabs.aws-documentation-mcp-server` - AWS documentation and resources ✅ **已配置**
+- `terraform-mcp-server` - Terraform documentation and provider discovery ✅ **已配置**
+
+
 
 ## Troubleshooting
 
