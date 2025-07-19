@@ -8,6 +8,8 @@ ovpn-admin
 **/modpacks/*
 **/.venv/
 .vscode/
+**/gitea/config
+
 
 # exclude .gitkeep files
 !.gitkeep
