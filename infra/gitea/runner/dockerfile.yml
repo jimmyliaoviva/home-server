@@ -1,0 +1,23 @@
+FROM docker.io/gitea/act_runner:nightly
+
+
+# 更新包管理器並安裝必要工具
+RUN apk update && apk add --no-cache \
+    curl \
+    wget \
+    bash \
+    git \
+    ca-certificates \
+    tini
+
+# 安裝 Node.js 18.x LTS
+RUN apk add --no-cache nodejs npm
+
+# 驗證安裝
+RUN node --version && npm --version
+
+# 可選：安裝 yarn
+RUN npm install -g yarn
+
+# 保持原始 act_runner 的 entrypoint
+# 不覆蓋 ENTRYPOINT，使用原始鏡像的設定
