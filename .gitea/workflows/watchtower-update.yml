@@ -1,8 +1,8 @@
 name: Watchtower Update open-webui
 
 on:
-  schedule:
-    - cron: '0 12 * * *'  # Run daily at 12 PM UTC
+  # schedule:
+  #   - cron: '0 12 * * *'  # Run daily at 12 PM UTC
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
