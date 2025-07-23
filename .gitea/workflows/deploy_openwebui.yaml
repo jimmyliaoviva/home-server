@@ -39,6 +39,16 @@ jobs:
           # Navigate to the server path
           cd '/home/jimmy/home-server/app/openwebui'
 
+          # Check current remote URL
+          echo "Current remote URL:"
+          git remote get-url origin
+          
+          # Use HTTPS URL for pulling (works for public repos)
+          if git remote get-url origin | grep -q "git@github.com"; then
+            echo "Switching to HTTPS URL for pulling..."
+            git remote set-url origin https://github.com/jimmyliaoviva/home-server.git
+          fi
+          
           # Pull the latest changes
           git pull origin main
           
