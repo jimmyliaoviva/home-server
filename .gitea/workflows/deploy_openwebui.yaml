@@ -35,7 +35,7 @@ jobs:
 
       - name: Deploy OpenWebUI and MCPO server
         run: |  
-          ssh jimmy@192.168.68.124 << 'EOF'
+          ssh jimmy@192.168.68.124 -A << 'EOF'
           # Navigate to the server path
           cd '/home/jimmy/home-server/app/openwebui'
 
