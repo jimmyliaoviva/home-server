@@ -8,7 +8,8 @@ RUN apk update && apk add --no-cache \
     bash \
     git \
     ca-certificates \
-    tini
+    tini \
+    openssh-client
 
 # 安裝 Node.js 18.x LTS
 RUN apk add --no-cache nodejs npm
