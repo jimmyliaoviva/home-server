@@ -19,6 +19,8 @@ services:
       dockerfile: dockerfile.yml
       pull: true
       no_cache: true
+    stdin_open: true      # 等同於 docker run -i
+    tty: true    
     environment:
       CONFIG_FILE: /config.yaml
       GITEA_INSTANCE_URL: "http://server:3000/"
