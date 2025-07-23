@@ -34,7 +34,6 @@ jobs:
             --run-once \
             --include-stopped \
             --revive-stopped \
-            --notification-url "${{ secrets.DC_WEBHOOK }}" \
             open-webui
           
           # Verify the container is running
