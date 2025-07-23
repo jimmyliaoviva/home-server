@@ -19,11 +19,11 @@ jobs:
           
       - name: Add server to known hosts
         run: |
-          ssh-keyscan -H 192.168.68.124 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 192.168.68.182 >> ~/.ssh/known_hosts
           
       - name: Run Watchtower to update open-webui container
         run: |
-          ssh jimmy@192.168.68.124 << 'EOF'
+          ssh jimmy@192.168.68.182 << 'EOF'
           # cd ${{ secrets.SERVER_PATH || '/home/server/home-server' }}
           
           # Run Watchtower to update only the open-webui container
