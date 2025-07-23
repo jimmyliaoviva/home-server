@@ -1,19 +1,55 @@
 name: Deploy OpenWebUI and MCPO server
 run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
-on: [push]
+
+on:
+  workflow_dispatch:  # Allow manual triggering
+    inputs:
+      service:
+        description: 'Select service to deploy'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - openwebui-stack
+          - openwebui-only
+          - mcpo-only
+
 
 jobs:
-  Explore-Gitea-Actions:
+  update-open-webui:
     runs-on: n100
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ gitea.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by Gitea!"
-      - run: echo "🔎 The name of your branch is ${{ gitea.ref }} and your repository is ${{ gitea.repository }}."
-      - name: Check out repository code
+      - name: Checkout code
         uses: actions/checkout@v4
-      - run: echo "💡 The ${{ gitea.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
+        
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.GITHUB_KEY}}
+          
+      - name: Add server to known hosts
         run: |
-          ls ${{ gitea.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+          ssh-keyscan -H 192.168.68.124 >> ~/.ssh/known_hosts
+
+      - name: Deploy OpenWebUI and MCPO server
+        run: |  
+          ssh jimmy@192.168.68.124 << 'EOF'
+          # Navigate to the server path
+          cd '/home/jimmy/home-server/app/openwebui'
+
+          # Pull the latest changes
+          git pull origin main
+          
+          sh start.sh --mcpo-only
+          EOF
+
+      - name: Verify deployment
+        run: |
+          ssh jimmy@192.168.68.124 << 'EOF'
+          echo "🔍 Checking deployment status..."
+          docker ps --filter "name=mcpo" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" || echo "❌ MCPO not found"
+
+          echo "✅ Deployment verification completed!"
+          EOF
