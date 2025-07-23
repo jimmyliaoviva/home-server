@@ -1,0 +1,42 @@
+name: Watchtower Update open-webui
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # Run daily at 12 PM UTC
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  update-open-webui:
+    runs-on: n100
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H 192.168.68.124 >> ~/.ssh/known_hosts
+          
+      - name: Run Watchtower to update open-webui container
+        run: |
+          ssh jimmy@192.168.68.124 << 'EOF'
+          # cd ${{ secrets.SERVER_PATH || '/home/server/home-server' }}
+          
+          # Run Watchtower to update only the open-webui container
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            containrrr/watchtower \
+            --cleanup \
+            --run-once \
+            --include-stopped \
+            --revive-stopped \
+            --notification-url "${{ secrets.DC_WEBHOOK }}" \
+            open-webui
+          
+          # Verify the container is running
+          docker ps --filter "name=open-webui" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
+          EOF
