@@ -1,0 +1,341 @@
+name: Install K3s Cluster
+
+on:
+  workflow_dispatch:
+    inputs:
+      node_type:
+        description: 'Node type (server/agent)'
+        required: true
+        default: 'server'
+        type: choice
+        options:
+          - server
+          - agent
+      server_url:
+        description: 'K3s server URL (required for agent nodes, e.g., https://192.168.1.100:6443)'
+        required: false
+        type: string
+      node_token:
+        description: 'K3s node token (required for agent nodes)'
+        required: false
+        type: string
+      cluster_init:
+        description: 'Initialize cluster with embedded etcd (for first server node)'
+        required: false
+        default: true
+        type: boolean
+      k3s_version:
+        description: 'K3s version to install (e.g., v1.28.5+k3s1, leave empty for latest)'
+        required: false
+        type: string
+      disable_components:
+        description: 'Components to disable (comma-separated: traefik,servicelb,metrics-server)'
+        required: false
+        default: 'traefik'
+        type: string
+      install_rancher_prep:
+        description: 'Install Helm and cert-manager for Rancher preparation'
+        required: false
+        default: true
+        type: boolean
+      target_server:
+        description: 'Target server IP address'
+        required: true
+        default: '192.168.68.124'
+        type: string
+
+jobs:
+  validate-inputs:
+    runs-on: n100
+    outputs:
+      validated: ${{ steps.validate.outputs.validated }}
+    steps:
+      - name: Validate inputs for agent nodes
+        id: validate
+        run: |
+          if [ "${{ github.event.inputs.node_type }}" = "agent" ]; then
+            if [ -z "${{ github.event.inputs.server_url }}" ] || [ -z "${{ github.event.inputs.node_token }}" ]; then
+              echo "❌ Error: server_url and node_token are required for agent nodes"
+              exit 1
+            fi
+          fi
+          echo "✅ Input validation passed"
+          echo "validated=true" >> $GITHUB_OUTPUT
+
+  install-k3s:
+    runs-on: n100
+    needs: validate-inputs
+    if: needs.validate-inputs.outputs.validated == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ github.event.inputs.target_server }} >> ~/.ssh/known_hosts
+
+      - name: Install K3s Server
+        if: ${{ github.event.inputs.node_type == 'server' }}
+        run: |
+          ssh jimmy@${{ github.event.inputs.target_server }} << 'EOF'
+          set -e
+          
+          echo "🚀 Starting K3s server installation..."
+          
+          # Prepare installation command
+          INSTALL_CMD="curl -sfL https://get.k3s.io | sh -s - server"
+          
+          # Add version if specified
+          if [ -n "${{ github.event.inputs.k3s_version }}" ]; then
+            export INSTALL_K3S_VERSION="${{ github.event.inputs.k3s_version }}"
+            echo "📦 Installing K3s version: $INSTALL_K3S_VERSION"
+          else
+            echo "📦 Installing latest K3s version"
+          fi
+          
+          # Add cluster init flag if specified (for embedded etcd)
+          if [ "${{ github.event.inputs.cluster_init }}" = "true" ]; then
+            INSTALL_CMD="$INSTALL_CMD --cluster-init"
+            echo "🔧 Enabling cluster initialization with embedded etcd"
+          fi
+          
+          # Add disable components
+          if [ -n "${{ github.event.inputs.disable_components }}" ]; then
+            IFS=',' read -ra COMPONENTS <<< "${{ github.event.inputs.disable_components }}"
+            for component in "${COMPONENTS[@]}"; do
+              INSTALL_CMD="$INSTALL_CMD --disable $component"
+              echo "🚫 Disabling component: $component"
+            done
+          fi
+          
+          # Add write-kubeconfig-mode for easier access
+          INSTALL_CMD="$INSTALL_CMD --write-kubeconfig-mode 644"
+          
+          echo "⚡ Executing: $INSTALL_CMD"
+          eval $INSTALL_CMD
+          
+          echo "⏳ Waiting for K3s to be ready..."
+          timeout=300
+          while [ $timeout -gt 0 ]; do
+            if sudo k3s kubectl get nodes &> /dev/null; then
+              echo "✅ K3s is ready!"
+              break
+            fi
+            sleep 5
+            timeout=$((timeout - 5))
+          done
+          
+          if [ $timeout -le 0 ]; then
+            echo "❌ K3s failed to start within 5 minutes"
+            exit 1
+          fi
+          
+          echo "🎉 K3s server installation completed successfully!"
+          EOF
+
+      - name: Install K3s Agent
+        if: ${{ github.event.inputs.node_type == 'agent' }}
+        run: |
+          ssh jimmy@${{ github.event.inputs.target_server }} << 'EOF'
+          set -e
+          
+          echo "🚀 Starting K3s agent installation..."
+          
+          # Prepare installation command for agent
+          INSTALL_CMD="curl -sfL https://get.k3s.io | sh -s - agent"
+          
+          # Add version if specified
+          if [ -n "${{ github.event.inputs.k3s_version }}" ]; then
+            export INSTALL_K3S_VERSION="${{ github.event.inputs.k3s_version }}"
+            echo "📦 Installing K3s version: $INSTALL_K3S_VERSION"
+          fi
+          
+          # Set server URL and token for agent
+          export K3S_URL="${{ github.event.inputs.server_url }}"
+          export K3S_TOKEN="${{ github.event.inputs.node_token }}"
+          
+          echo "🔗 Connecting to server: $K3S_URL"
+          echo "⚡ Executing: $INSTALL_CMD"
+          eval $INSTALL_CMD
+          
+          echo "⏳ Waiting for K3s agent to be ready..."
+          sleep 30
+          
+          if sudo systemctl is-active --quiet k3s-agent; then
+            echo "✅ K3s agent is running!"
+          else
+            echo "❌ K3s agent failed to start"
+            sudo systemctl status k3s-agent --no-pager
+            exit 1
+          fi
+          
+          echo "🎉 K3s agent installation completed successfully!"
+          EOF
+
+      - name: Configure kubectl access
+        if: ${{ github.event.inputs.node_type == 'server' }}
+        run: |
+          ssh jimmy@${{ github.event.inputs.target_server }} << 'EOF'
+          set -e
+          
+          echo "🔧 Configuring kubectl access..."
+          
+          # Create .kube directory if it doesn't exist
+          mkdir -p ~/.kube
+          
+          # Copy k3s kubeconfig to user's .kube directory
+          sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+          sudo chown $(id -u):$(id -g) ~/.kube/config
+          chmod 600 ~/.kube/config
+          
+          # Set KUBECONFIG environment variable in bashrc if not already present
+          if ! grep -q "KUBECONFIG" ~/.bashrc; then
+            echo 'export KUBECONFIG=~/.kube/config' >> ~/.bashrc
+          fi
+          
+          export KUBECONFIG=~/.kube/config
+          
+          echo "✅ kubectl configuration completed"
+          EOF
+
+      - name: Install Helm and prepare for Rancher
+        if: ${{ github.event.inputs.node_type == 'server' && github.event.inputs.install_rancher_prep == 'true' }}
+        run: |
+          ssh jimmy@${{ github.event.inputs.target_server }} << 'EOF'
+          set -e
+          
+          export KUBECONFIG=~/.kube/config
+          
+          echo "📦 Installing Helm..."
+          if ! command -v helm &> /dev/null; then
+            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+            echo "✅ Helm installed successfully"
+          else
+            echo "✅ Helm is already installed: $(helm version --short)"
+          fi
+          
+          echo "📦 Adding Helm repositories..."
+          # Add Jetstack repository for cert-manager
+          helm repo add jetstack https://charts.jetstack.io
+          
+          # Add Rancher repository
+          helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+          
+          helm repo update
+          echo "✅ Helm repositories added and updated"
+          
+          echo "🔐 Installing cert-manager..."
+          # Create cert-manager namespace
+          kubectl create namespace cert-manager --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Install cert-manager CRDs
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.crds.yaml
+          
+          # Install cert-manager
+          helm upgrade --install cert-manager jetstack/cert-manager \
+            --namespace cert-manager \
+            --version v1.13.0 \
+            --wait
+          
+          echo "⏳ Waiting for cert-manager to be ready..."
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=cert-manager -n cert-manager --timeout=300s
+          
+          echo "✅ cert-manager installation completed"
+          
+          echo "🐄 Creating cattle-system namespace for Rancher..."
+          kubectl create namespace cattle-system --dry-run=client -o yaml | kubectl apply -f -
+          echo "✅ cattle-system namespace created"
+          
+          echo "🎉 Rancher preparation completed!"
+          EOF
+
+      - name: Display cluster information
+        if: ${{ github.event.inputs.node_type == 'server' }}
+        run: |
+          ssh jimmy@${{ github.event.inputs.target_server }} << 'EOF'
+          set -e
+          
+          export KUBECONFIG=~/.kube/config
+          
+          echo ""
+          echo "🔍 === K3s Cluster Information ==="
+          echo ""
+          echo "📊 Nodes:"
+          kubectl get nodes -o wide
+          
+          echo ""
+          echo "🏃 System Pods:"
+          kubectl get pods -A
+          
+          echo ""
+          echo "ℹ️  Cluster Info:"
+          kubectl cluster-info
+          
+          echo ""
+          echo "🔧 K3s Service Status:"
+          sudo systemctl status k3s --no-pager || true
+          
+          echo ""
+          echo "📝 Node Token (save this for adding agent nodes):"
+          sudo cat /var/lib/rancher/k3s/server/node-token
+          
+          echo ""
+          echo "🎉 === Installation Complete! ==="
+          EOF
+
+      - name: Display next steps
+        if: ${{ github.event.inputs.node_type == 'server' }}
+        run: |
+          echo ""
+          echo "🎉 === K3s Installation Complete! ==="
+          echo ""
+          echo "📋 Next steps:"
+          echo ""
+          if [ "${{ github.event.inputs.install_rancher_prep }}" = "true" ]; then
+            echo "1. 🐄 Install Rancher using Helm:"
+            echo "   helm install rancher rancher-latest/rancher \\"
+            echo "     --namespace cattle-system \\"
+            echo "     --set hostname=rancher.your-domain.com \\"
+            echo "     --set bootstrapPassword=admin123456789 \\"
+            echo "     --set replicas=1"
+            echo ""
+            echo "2. ⏳ Wait for Rancher to be ready:"
+            echo "   kubectl -n cattle-system rollout status deploy/rancher"
+            echo ""
+            echo "3. 🌐 Access Rancher UI at: https://rancher.your-domain.com"
+          else
+            echo "1. 📦 Install Helm and cert-manager manually if needed"
+            echo "2. 🐄 Install Rancher following the official documentation"
+          fi
+          echo ""
+          echo "🔧 Useful commands:"
+          echo "- Check k3s status: sudo systemctl status k3s"
+          echo "- View k3s logs: sudo journalctl -u k3s -f"
+          echo "- Restart k3s: sudo systemctl restart k3s"
+          echo "- Uninstall k3s: /usr/local/bin/k3s-uninstall.sh"
+          echo ""
+          echo "📁 Configuration files:"
+          echo "- k3s config: /etc/rancher/k3s/k3s.yaml"
+          echo "- kubectl config: ~/.kube/config"
+          echo ""
+          echo "🔑 To add agent nodes, use the node token displayed above"
+          echo "    and the server URL: https://${{ github.event.inputs.target_server }}:6443"
+
+      - name: Display agent connection info
+        if: ${{ github.event.inputs.node_type == 'agent' }}
+        run: |
+          echo ""
+          echo "🎉 === K3s Agent Installation Complete! ==="
+          echo ""
+          echo "✅ Agent successfully connected to: ${{ github.event.inputs.server_url }}"
+          echo ""
+          echo "🔧 Useful commands:"
+          echo "- Check k3s-agent status: sudo systemctl status k3s-agent"
+          echo "- View k3s-agent logs: sudo journalctl -u k3s-agent -f"
+          echo "- Restart k3s-agent: sudo systemctl restart k3s-agent"
+          echo "- Uninstall k3s-agent: /usr/local/bin/k3s-agent-uninstall.sh"
