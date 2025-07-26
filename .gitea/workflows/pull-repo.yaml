@@ -27,7 +27,7 @@ jobs:
 
       - name: Pull repository to target server
         id: pull-repo
-        uses: ./.gitea/workflows/actions/pull_repo.yaml
+        uses: ./.gitea/workflows/actions/pull-repo
         with:
           target_server: ${{ github.event.inputs.target_server }}
           target_directory: '~/home-server'
