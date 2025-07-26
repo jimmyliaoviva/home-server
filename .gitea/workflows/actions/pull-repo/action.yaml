@@ -30,10 +30,6 @@ inputs:
     description: 'Script to run after clone/pull (optional)'
     required: false
     default: ''
-  permissions:
-    description: 'Set directory permissions (e.g., 755, 644)'
-    required: false
-    default: '755'
   ssh_private_key:
     description: 'SSH private key for authentication'
     required: true
@@ -173,11 +169,6 @@ runs:
             ;;
         esac
         
-        # Set permissions if specified
-        if [ -n "${{ inputs.permissions }}" ]; then
-          echo "🔐 Setting permissions to ${{ inputs.permissions }}..."
-          chmod -R ${{ inputs.permissions }} "$REPO_DIR"
-        fi
         
         # Run post-clone script if provided
         if [ -n "${{ inputs.post_clone_script }}" ]; then
