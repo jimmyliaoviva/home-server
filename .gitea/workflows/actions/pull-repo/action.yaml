@@ -8,7 +8,7 @@ inputs:
     required: true
   repository_url:
     description: 'Repository URL to clone (leave empty to use current repo)'
-    required: false
+    required: true
     default: 'https://github.com/jimmyliaoviva/home-server.git'
   target_directory:
     description: 'Target directory on remote server'
