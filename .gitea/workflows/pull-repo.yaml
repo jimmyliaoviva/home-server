@@ -34,7 +34,6 @@ jobs:
           branch: 'main'
           clone_method: ${{ github.event.inputs.clone_method }}
           ssh_user: 'jimmy'
-          create_backup: 'true'
           permissions: '755'
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           post_clone_script: 'echo "Repository updated successfully!" && ls -la'

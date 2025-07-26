@@ -26,10 +26,6 @@ inputs:
     description: 'SSH username'
     required: false
     default: 'jimmy'
-  create_backup:
-    description: 'Create backup before updating (true/false)'
-    required: false
-    default: 'true'
   post_clone_script:
     description: 'Script to run after clone/pull (optional)'
     required: false
@@ -113,7 +109,6 @@ runs:
         REPO_DIR="$TARGET_DIR"
         BRANCH="${{ inputs.branch }}"
         METHOD="${{ inputs.clone_method }}"
-        CREATE_BACKUP="${{ inputs.create_backup }}"
         
         echo "🚀 Starting repository operation..."
         echo "📂 Target directory: $TARGET_DIR"
@@ -123,20 +118,11 @@ runs:
         # Create target directory if it doesn't exist
         mkdir -p "$TARGET_DIR"
         
-        # Function to create backup
-        create_backup() {
-          if [ "$CREATE_BACKUP" = "true" ] && [ -d "$REPO_DIR" ]; then
-            BACKUP_DIR="${REPO_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
-            echo "💾 Creating backup at: $BACKUP_DIR"
-            cp -r "$REPO_DIR" "$BACKUP_DIR"
-          fi
-        }
         
         case "$METHOD" in
           "pull")
             if [ -d "$REPO_DIR" ] && [ -d "$REPO_DIR/.git" ]; then
               echo "🔄 Pulling existing repository..."
-              create_backup
               cd "$REPO_DIR"
               git fetch origin
               git checkout "$BRANCH" || git checkout -b "$BRANCH" origin/"$BRANCH"
