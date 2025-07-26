@@ -133,7 +133,7 @@ runs:
           "fresh_clone")
             echo "🆕 Performing fresh clone..."
             cd "$TARGET_DIR"
-            git clone -b "$BRANCH" "$REPO_URL" "$REPO_NAME"
+            git clone -b "$BRANCH" "$REPO_URL"
             echo "✅ Repository cloned successfully"
             ;;
             
@@ -153,7 +153,7 @@ runs:
                 rm -rf "$REPO_DIR"
               fi
               cd "$TARGET_DIR"
-              git clone -b "$BRANCH" "$REPO_URL" "$REPO_NAME"
+              git clone -b "$BRANCH" "$REPO_URL"
               echo "✅ Repository cloned successfully"
             fi
             ;;
