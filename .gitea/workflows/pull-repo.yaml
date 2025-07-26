@@ -1,0 +1,48 @@
+name: Example - Pull Repository to Target Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_server:
+        description: 'Target server IP address'
+        required: true
+        default: '192.168.68.124'
+        type: string
+      clone_method:
+        description: 'Clone method'
+        required: true
+        default: 'pull'
+        type: choice
+        options:
+          - pull
+          - fresh_clone
+          - force_update
+
+jobs:
+  pull-repo:
+    runs-on: n100
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pull repository to target server
+        id: pull-repo
+        uses: ./.gitea/workflows/actions/pull_repo.yaml
+        with:
+          target_server: ${{ github.event.inputs.target_server }}
+          target_directory: '~/home-server'
+          branch: 'main'
+          clone_method: ${{ github.event.inputs.clone_method }}
+          ssh_user: 'jimmy'
+          create_backup: 'true'
+          permissions: '755'
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          post_clone_script: 'echo "Repository updated successfully!" && ls -la'
+
+      - name: Display results
+        run: |
+          echo "🎉 Repository operation completed!"
+          echo "📁 Repository Name: ${{ steps.pull-repo.outputs.repository_name }}"
+          echo "📂 Repository Path: ${{ steps.pull-repo.outputs.repository_path }}"
+          echo "🌿 Branch: ${{ steps.pull-repo.outputs.branch_name }}"
+          echo "📝 Commit: ${{ steps.pull-repo.outputs.commit_hash }}"

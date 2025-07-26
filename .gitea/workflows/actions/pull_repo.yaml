@@ -1,0 +1,243 @@
+name: 'Pull/Clone Repository'
+description: 'Pull or clone a repository to a target instance via SSH'
+author: 'Jimmy'
+
+inputs:
+  target_server:
+    description: 'Target server IP address or hostname'
+    required: true
+  repository_url:
+    description: 'Repository URL to clone (leave empty to use current repo)'
+    required: false
+    default: 'https://github.com/jimmyliaoviva/home-server.git'
+  target_directory:
+    description: 'Target directory on remote server'
+    required: false
+    default: '~/home-server'
+  branch:
+    description: 'Branch to checkout'
+    required: false
+    default: 'main'
+  clone_method:
+    description: 'Clone method (pull, fresh_clone, force_update)'
+    required: false
+    default: 'pull'
+  ssh_user:
+    description: 'SSH username'
+    required: false
+    default: 'jimmy'
+  create_backup:
+    description: 'Create backup before updating (true/false)'
+    required: false
+    default: 'true'
+  post_clone_script:
+    description: 'Script to run after clone/pull (optional)'
+    required: false
+    default: ''
+  permissions:
+    description: 'Set directory permissions (e.g., 755, 644)'
+    required: false
+    default: '755'
+  ssh_private_key:
+    description: 'SSH private key for authentication'
+    required: true
+
+outputs:
+  repository_path:
+    description: 'Full path to the cloned/pulled repository'
+    value: ${{ steps.repo-info.outputs.repo_path }}
+  repository_name:
+    description: 'Name of the repository'
+    value: ${{ steps.repo-info.outputs.repo_name }}
+  commit_hash:
+    description: 'Latest commit hash'
+    value: ${{ steps.repo-info.outputs.commit_hash }}
+  branch_name:
+    description: 'Current branch name'
+    value: ${{ steps.repo-info.outputs.branch_name }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Prepare repository information
+      id: repo-info
+      shell: bash
+      run: |
+        # Determine repository URL
+        if [ -n "${{ inputs.repository_url }}" ]; then
+          REPO_URL="${{ inputs.repository_url }}"
+        else
+          REPO_URL="${{ github.server_url }}/${{ github.repository }}.git"
+        fi
+        
+        # Extract repository name from URL
+        REPO_NAME=$(basename "$REPO_URL" .git)
+        REPO_PATH="${{ inputs.target_directory }}/$REPO_NAME"
+        
+        echo "📋 Repository URL: $REPO_URL"
+        echo "📁 Repository Name: $REPO_NAME"
+        echo "📂 Repository Path: $REPO_PATH"
+        echo "🎯 Target Server: ${{ inputs.target_server }}"
+        echo "🌿 Branch: ${{ inputs.branch }}"
+        echo "🔄 Clone Method: ${{ inputs.clone_method }}"
+        
+        echo "repo_url=$REPO_URL" >> $GITHUB_OUTPUT
+        echo "repo_name=$REPO_NAME" >> $GITHUB_OUTPUT
+        echo "repo_path=$REPO_PATH" >> $GITHUB_OUTPUT
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ inputs.ssh_private_key }}
+
+    - name: Add server to known hosts
+      shell: bash
+      run: |
+        ssh-keyscan -H ${{ inputs.target_server }} >> ~/.ssh/known_hosts
+
+    - name: Test SSH connection
+      shell: bash
+      run: |
+        echo "🔗 Testing SSH connection to ${{ inputs.ssh_user }}@${{ inputs.target_server }}..."
+        ssh -o ConnectTimeout=10 ${{ inputs.ssh_user }}@${{ inputs.target_server }} "echo '✅ SSH connection successful'"
+
+    - name: Execute repository operation
+      shell: bash
+      run: |
+        ssh ${{ inputs.ssh_user }}@${{ inputs.target_server }} << 'EOF'
+        set -e
+        
+        REPO_URL="${{ steps.repo-info.outputs.repo_url }}"
+        REPO_NAME="${{ steps.repo-info.outputs.repo_name }}"
+        TARGET_DIR="${{ inputs.target_directory }}"
+        REPO_DIR="$TARGET_DIR/$REPO_NAME"
+        BRANCH="${{ inputs.branch }}"
+        METHOD="${{ inputs.clone_method }}"
+        CREATE_BACKUP="${{ inputs.create_backup }}"
+        
+        echo "🚀 Starting repository operation..."
+        echo "📂 Target directory: $TARGET_DIR"
+        echo "📁 Repository directory: $REPO_DIR"
+        echo "🔄 Method: $METHOD"
+        
+        # Create target directory if it doesn't exist
+        mkdir -p "$TARGET_DIR"
+        
+        # Function to create backup
+        create_backup() {
+          if [ "$CREATE_BACKUP" = "true" ] && [ -d "$REPO_DIR" ]; then
+            BACKUP_DIR="${REPO_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
+            echo "💾 Creating backup at: $BACKUP_DIR"
+            cp -r "$REPO_DIR" "$BACKUP_DIR"
+          fi
+        }
+        
+        case "$METHOD" in
+          "pull")
+            if [ -d "$REPO_DIR" ] && [ -d "$REPO_DIR/.git" ]; then
+              echo "🔄 Pulling existing repository..."
+              create_backup
+              cd "$REPO_DIR"
+              git fetch origin
+              git checkout "$BRANCH" || git checkout -b "$BRANCH" origin/"$BRANCH"
+              git pull origin "$BRANCH"
+              echo "✅ Repository updated successfully"
+            else
+              echo "❌ Repository not found. Use 'fresh_clone' method."
+              exit 1
+            fi
+            ;;
+            
+          "fresh_clone")
+            echo "🆕 Performing fresh clone..."
+            if [ -d "$REPO_DIR" ]; then
+              create_backup
+              rm -rf "$REPO_DIR"
+            fi
+            cd "$TARGET_DIR"
+            git clone -b "$BRANCH" "$REPO_URL" "$REPO_NAME"
+            echo "✅ Repository cloned successfully"
+            ;;
+            
+          "force_update")
+            echo "⚡ Performing force update..."
+            if [ -d "$REPO_DIR" ] && [ -d "$REPO_DIR/.git" ]; then
+              create_backup
+              cd "$REPO_DIR"
+              git reset --hard HEAD
+              git clean -fd
+              git fetch origin
+              git checkout "$BRANCH" || git checkout -b "$BRANCH" origin/"$BRANCH"
+              git reset --hard origin/"$BRANCH"
+              echo "✅ Repository force updated successfully"
+            else
+              echo "❌ Repository not found, performing fresh clone..."
+              if [ -d "$REPO_DIR" ]; then
+                rm -rf "$REPO_DIR"
+              fi
+              cd "$TARGET_DIR"
+              git clone -b "$BRANCH" "$REPO_URL" "$REPO_NAME"
+              echo "✅ Repository cloned successfully"
+            fi
+            ;;
+            
+          *)
+            echo "❌ Unknown method: $METHOD"
+            exit 1
+            ;;
+        esac
+        
+        # Set permissions if specified
+        if [ -n "${{ inputs.permissions }}" ]; then
+          echo "🔐 Setting permissions to ${{ inputs.permissions }}..."
+          chmod -R ${{ inputs.permissions }} "$REPO_DIR"
+        fi
+        
+        # Run post-clone script if provided
+        if [ -n "${{ inputs.post_clone_script }}" ]; then
+          echo "🚀 Running post-clone script..."
+          cd "$REPO_DIR"
+          ${{ inputs.post_clone_script }}
+          echo "✅ Post-clone script completed"
+        fi
+        
+        # Get repository information for outputs
+        cd "$REPO_DIR"
+        echo "COMMIT_HASH=$(git rev-parse HEAD)" >> /tmp/repo_info
+        echo "BRANCH_NAME=$(git branch --show-current)" >> /tmp/repo_info
+        
+        echo ""
+        echo "🔍 === Repository Information ==="
+        echo "📁 Path: $REPO_DIR"
+        echo "🌐 URL: $(git remote get-url origin)"
+        echo "🌿 Branch: $(git branch --show-current)"
+        echo "📝 Latest: $(git log -1 --oneline)"
+        echo "👤 Author: $(git log -1 --pretty=format:'%an <%ae>')"
+        echo "📅 Date: $(git log -1 --pretty=format:'%cd' --date=format:'%Y-%m-%d %H:%M:%S')"
+        echo "✅ Operation completed successfully!"
+        EOF
+
+    - name: Get repository information
+      id: get-info
+      shell: bash
+      run: |
+        # Get the repository info from the remote server
+        ssh ${{ inputs.ssh_user }}@${{ inputs.target_server }} << 'EOF'
+        REPO_DIR="${{ steps.repo-info.outputs.repo_path }}"
+        if [ -f /tmp/repo_info ]; then
+          cat /tmp/repo_info
+          rm -f /tmp/repo_info
+        else
+          cd "$REPO_DIR"
+          echo "COMMIT_HASH=$(git rev-parse HEAD)"
+          echo "BRANCH_NAME=$(git branch --show-current)"
+        fi
+        EOF
+
+    - name: Set outputs
+      shell: bash
+      run: |
+        echo "repository_path=${{ steps.repo-info.outputs.repo_path }}" >> $GITHUB_OUTPUT
+        echo "repository_name=${{ steps.repo-info.outputs.repo_name }}" >> $GITHUB_OUTPUT
+        # Note: commit_hash and branch_name would need to be extracted from the SSH output
+        # This is a simplified version - in practice you'd parse the SSH output
