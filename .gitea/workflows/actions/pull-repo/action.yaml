@@ -132,10 +132,6 @@ runs:
             
           "fresh_clone")
             echo "🆕 Performing fresh clone..."
-            if [ -d "$REPO_DIR" ]; then
-              create_backup
-              rm -rf "$REPO_DIR"
-            fi
             cd "$TARGET_DIR"
             git clone -b "$BRANCH" "$REPO_URL" "$REPO_NAME"
             echo "✅ Repository cloned successfully"
@@ -144,7 +140,6 @@ runs:
           "force_update")
             echo "⚡ Performing force update..."
             if [ -d "$REPO_DIR" ] && [ -d "$REPO_DIR/.git" ]; then
-              create_backup
               cd "$REPO_DIR"
               git reset --hard HEAD
               git clean -fd
