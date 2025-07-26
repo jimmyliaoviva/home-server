@@ -30,7 +30,7 @@ jobs:
         uses: ./.gitea/workflows/actions/pull-repo
         with:
           target_server: ${{ github.event.inputs.target_server }}
-          target_directory: '/home/jimmy/home-server'
+          target_directory: '/home/jimmy'
           branch: 'main'
           clone_method: ${{ github.event.inputs.clone_method }}
           ssh_user: 'jimmy'
