@@ -72,7 +72,7 @@ runs:
         
         # Extract repository name from URL
         REPO_NAME=$(basename "$REPO_URL" .git)
-        REPO_PATH="${{ inputs.target_directory }}/$REPO_NAME"
+        REPO_PATH="${{ inputs.target_directory }"
         
         echo "📋 Repository URL: $REPO_URL"
         echo "📁 Repository Name: $REPO_NAME"
