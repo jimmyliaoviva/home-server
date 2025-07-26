@@ -110,7 +110,7 @@ runs:
         REPO_URL="${{ steps.repo-info.outputs.repo_url }}"
         REPO_NAME="${{ steps.repo-info.outputs.repo_name }}"
         TARGET_DIR="${{ inputs.target_directory }}"
-        REPO_DIR="$TARGET_DIR/$REPO_NAME"
+        REPO_DIR="$TARGET_DIR"
         BRANCH="${{ inputs.branch }}"
         METHOD="${{ inputs.clone_method }}"
         CREATE_BACKUP="${{ inputs.create_backup }}"
