@@ -39,7 +39,7 @@ check_requirements() {
     log "Checking system requirements..."
     
     # Check if curl is installed
-    if ! command -v curl &> /dev/null; then
+    if ! command -v curl >/dev/null 2>&1; then
         error "curl is required but not installed. Please install curl first."
     fi
     
