@@ -223,6 +223,10 @@ main() {
     echo -e "${BLUE}=== K3s Installation Script ===${NC}"
     echo -e "${BLUE}This script will install k3s and prepare it for Rancher deployment${NC}\n"
     
+    # Initialize variables
+    SKIP_RANCHER_PREP=false
+    SKIP_CERT_MANAGER=false
+    
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -253,16 +257,27 @@ main() {
         esac
     done
     
+    # Debug output to show parsed flags
+    log "Configuration:"
+    log "  K3S_VERSION: ${K3S_VERSION:-latest}"
+    log "  SKIP_RANCHER_PREP: $SKIP_RANCHER_PREP"
+    log "  SKIP_CERT_MANAGER: $SKIP_CERT_MANAGER"
+    echo ""
+    
     # Run installation steps
     check_root
     check_requirements
     install_k3s
     configure_kubectl
     
-    if [ "$SKIP_RANCHER_PREP" != "true" ]; then
+    if [ "$SKIP_RANCHER_PREP" = "true" ]; then
+        log "Skipping Rancher preparation steps as requested."
+    else
         install_helm
         add_rancher_repo
-        if [ "$SKIP_CERT_MANAGER" != "true" ]; then
+        if [ "$SKIP_CERT_MANAGER" = "true" ]; then
+            log "Skipping cert-manager installation as requested."
+        else
             install_cert_manager
         fi
         create_rancher_namespace
