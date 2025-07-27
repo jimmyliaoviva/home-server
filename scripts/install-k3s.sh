@@ -78,7 +78,7 @@ install_k3s() {
     log "Waiting for k3s to be ready..."
     timeout=300
     while [ $timeout -gt 0 ]; do
-        if sudo k3s kubectl get nodes &> /dev/null; then
+        if sudo k3s kubectl get nodes >/dev/null 2>&1; then
             break
         fi
         sleep 5
@@ -114,8 +114,8 @@ configure_kubectl() {
 # Install Helm (required for Rancher)
 install_helm() {
     log "Installing Helm..."
-    
-    if command -v helm &> /dev/null; then
+
+    if command -v helm >/dev/null 2>&1; then
         log "Helm is already installed. Version: $(helm version --short)"
         return
     fi
