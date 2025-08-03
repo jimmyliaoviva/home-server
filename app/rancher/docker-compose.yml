@@ -1,9 +1,22 @@
-version: '3'
+version: '3.8'
 services:
   rancher:
-    image: rancher/rancher
+    image: rancher/rancher:latest
+    container_name: rancher
     privileged: true
     restart: unless-stopped
     ports:
-      - 8081:80
-      - 8443:443
+      - "8081:80"
+      - "8443:443"
+    volumes:
+      - rancher-data:/var/lib/rancher
+    networks:
+      - rancher-network
+
+volumes:
+  rancher-data:
+    driver: local
+
+networks:
+  rancher-network:
+    driver: bridge
