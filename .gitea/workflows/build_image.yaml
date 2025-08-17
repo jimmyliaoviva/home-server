@@ -50,7 +50,7 @@ jobs:
         with:
           registry: gitea.jimmylab.duckdns.org
           username: ${{ github.actor }}
-          password: ${{ secret.TOKEN }}
+          password: ${{ secrets.TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
