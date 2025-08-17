@@ -61,8 +61,6 @@ jobs:
             gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:latest
             gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Image digest
         run: echo "Image built and pushed for ${{ inputs.build_image }}"
