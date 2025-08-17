@@ -30,10 +30,6 @@ on:
           - semaphore
           - uptime_kuma
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
   build:
     name: Build ${{ inputs.build_image }}
@@ -53,8 +49,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: gitea.jimmylab.duckdns.org
-          username: ${{ gitea.actor }}
-          password: ${{ gitea.token }}
+          username: ${{ github.actor }}
+          password: ${{ secret.token }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
