@@ -58,8 +58,8 @@ jobs:
           context: ./app/${{ inputs.build_image }}
           push: true
           tags: |
-            gitea.jimmylab.duckdns.org/${{ inputs.build_image }}:latest
-            gitea.jimmylab.duckdns.org/${{ inputs.build_image }}:${{ github.sha }}
+            gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:latest
+            gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
