@@ -68,16 +68,15 @@ jobs:
       # - name: Image digest
       #   run: echo "Image built and pushed for ${{ inputs.build_image }}"
 
-      - name: Define context for app
+      - name: Define context
         run: |
-          echo "context=./app/${{ inputs.build_image }}" >> $GITHUB_ENV 
-          echo "${{ env.context }}"
+          if [ "${{ inputs.build_image }}" == "runner" ]; then
+            echo "context=./infra/${{ inputs.build_image }}" >> $GITHUB_ENV
+          else
+            echo "context=./app/${{ inputs.build_image }}" >> $GITHUB_ENV
+          fi
+          echo "Context set to: $context"
 
-      - name: Define context for infra
-        if: ${{ inputs.build_image == 'runner' }}
-        run: |
-          echo "context=./infra/${{ inputs.build_image }}" >> $GITHUB_ENV 
-          echo "${{ env.context }}"
 
       - name: Build images and upload
         uses: ./.gitea/workflows/actions/build-image
