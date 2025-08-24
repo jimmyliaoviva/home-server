@@ -40,7 +40,7 @@ runs:
         tags: |
           gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.image_name }}:latest
           gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.image_name }}:${{ github.sha }}
-        platforms: linux/amd64,linux/arm64
+        platforms: linux/amd64
 
     - name: Image digest
       shell: bash
