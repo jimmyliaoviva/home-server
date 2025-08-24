@@ -70,13 +70,13 @@ jobs:
 
       - name: Define context for app
         run: |
-          echo "conext=./app/${{ inputs.build_image }}" >> $GITHUB_ENV 
+          echo "context=./app/${{ inputs.build_image }}" >> $GITHUB_ENV 
           echo "${{ env.context }}"
 
       - name: Define context for infra
-        if: ${{ inputs.build_image == runner }}
+        if: ${{ inputs.build_image == 'runner' }}
         run: |
-          echo "conext=./infra/${{ inputs.build_image }}" >> $GITHUB_ENV 
+          echo "context=./infra/${{ inputs.build_image }}" >> $GITHUB_ENV 
           echo "${{ env.context }}"
 
       - name: Build images and upload
