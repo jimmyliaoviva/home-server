@@ -35,8 +35,6 @@ jobs:
   build:
     name: Build ${{ inputs.build_image }}
     runs-on: n100
-    env: 
-      context: "./app/${{ inputs.build_image }}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
