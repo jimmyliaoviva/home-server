@@ -9,6 +9,9 @@ inputs:
   context:
     description: 'Path of dockerfile'
     required: true
+  token:
+    description: "repository token"
+    required: true
 
 
 runs:
