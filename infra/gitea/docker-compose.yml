@@ -1,5 +1,9 @@
 version: "2"
 
+networks:
+  gitea-network:
+    driver: bridge
+
 services:
   server:
     image: docker.gitea.com/gitea:1.24.3-rootless
@@ -12,15 +16,14 @@ services:
     ports:
       - "4000:3000"
       - "2222:2222"
+    networks:
+      - gitea-network
 
   runner:
-    build:
-      context: ./runner
-      dockerfile: dockerfile.yml
-      pull: true
-      no_cache: true
+    image: docker.gitea.com/gitea:1.24.3-rootless
     stdin_open: true      # 等同於 docker run -i
     tty: true    
+    restart: always
     environment:
       CONFIG_FILE: /config.yaml
       GITEA_INSTANCE_URL: "http://server:3000/"
@@ -31,5 +34,7 @@ services:
       - ./runner/config.yaml:/config.yaml
       - ./runner/data:/data
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - gitea-network
     depends_on:
       - server
