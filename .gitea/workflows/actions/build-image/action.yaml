@@ -32,13 +32,13 @@ runs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ${{ input.conext }}
+        context: ${{ inputs.conext }}
         push: true
         tags: |
-          gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:latest
-          gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:${{ github.sha }}
+          gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.image_name }}:latest
+          gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.image_name }}:${{ github.sha }}
         platforms: linux/amd64,linux/arm64
 
     - name: Image digest
       shell: bash
-      run: echo "Image built and pushed for ${{ inputs.build_image }}"
+      run: echo "Image built and pushed for ${{ inputs.image_name }}"
