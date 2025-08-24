@@ -36,7 +36,7 @@ jobs:
     name: Build ${{ inputs.build_image }}
     runs-on: n100
     env: 
-      context: "./app/{{ inputs.build_image }}"
+      context: "./app/${{ inputs.build_image }}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -71,6 +71,7 @@ jobs:
       - name: Define context
         run: |
           echo "conext=./app/${{ inputs.build_image }}" >> $GITHUB_ENV 
+          echo "${{ env.context }}"
 
 
       - name: Build images and upload
