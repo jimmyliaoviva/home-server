@@ -10,7 +10,8 @@ RUN apk update && apk add --no-cache \
     ca-certificates \
     tini \
     openssh-client \
-    docker-cli
+    docker-cli \
+    unzip
 
 # 安裝 Node.js 18.x LTS
 RUN apk add --no-cache nodejs npm
@@ -20,6 +21,17 @@ RUN node --version && npm --version
 
 # 可選：安裝 yarn
 RUN npm install -g yarn
+
+# 安裝 OpenTofu
+RUN TOFU_VERSION="1.10.5" && \
+    wget -O tofu.zip "https://github.com/opentofu/opentofu/releases/download/v${TOFU_VERSION}/tofu_${TOFU_VERSION}_linux_amd64.zip" && \
+    unzip tofu.zip && \
+    mv tofu /usr/local/bin/ && \
+    chmod +x /usr/local/bin/tofu && \
+    rm tofu.zip
+
+# 驗證 OpenTofu 安裝
+RUN tofu version
 
 # 保持原始 act_runner 的 entrypoint
 # 不覆蓋 ENTRYPOINT，使用原始鏡像的設定
