@@ -69,9 +69,9 @@ jobs:
       - name: Define context
         run: |
           if [ "${{ inputs.build_image }}" == "runner" ]; then
-            echo "context=./infra/${{ inputs.build_image }}" >> $GITHUB_ENV
+            echo "context='./infra/${{ inputs.build_image }}'" >> $GITHUB_ENV
           else
-            echo "context=./app/${{ inputs.build_image }}" >> $GITHUB_ENV
+            echo "context='./app/${{ inputs.build_image }}'" >> $GITHUB_ENV
           fi
           echo "Context set to: $context"
 
