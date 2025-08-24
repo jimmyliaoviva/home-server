@@ -41,41 +41,41 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
 
-      - name: List Docker containers
-        run: | 
-          docker ps
+      # - name: List Docker containers
+      #   run: | 
+      #     docker ps
         
-      - name: Log in to Gitea Registry
-        uses: docker/login-action@v3
-        with:
-          registry: gitea.jimmylab.duckdns.org
-          username: ${{ github.actor }}
-          password: ${{ secrets.TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./app/${{ inputs.build_image }}
-          push: true
-          tags: |
-            gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:latest
-            gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:${{ github.sha }}
-          platforms: linux/amd64,linux/arm64
-
-      - name: Image digest
-        run: echo "Image built and pushed for ${{ inputs.build_image }}"
-
-      # - name: Define context
-      #   run: |
-      #     echo "conext=./app/${{ inputs.build_image }}" >> $GITHUB_ENV 
-
-
-      # - name: Build images and upload
-      #   uses: ./.gitea/workflows/actions/build-image
+      # - name: Log in to Gitea Registry
+      #   uses: docker/login-action@v3
       #   with:
-      #     context: ${{ env.context }}
-      #     image_name: ${{ inputs.build_image }}
-      #     token: ${{ secrets.TOKEN }}
+      #     registry: gitea.jimmylab.duckdns.org
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.TOKEN }}
+
+      # - name: Build and push Docker image
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./app/${{ inputs.build_image }}
+      #     push: true
+      #     tags: |
+      #       gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:latest
+      #       gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.build_image }}:${{ github.sha }}
+      #     platforms: linux/amd64,linux/arm64
+
+      # - name: Image digest
+      #   run: echo "Image built and pushed for ${{ inputs.build_image }}"
+
+      - name: Define context
+        run: |
+          echo "conext=./app/${{ inputs.build_image }}" >> $GITHUB_ENV 
+
+
+      - name: Build images and upload
+        uses: ./.gitea/workflows/actions/build-image
+        with:
+          context: ${{ env.context }}
+          image_name: ${{ inputs.build_image }}
+          token: ${{ secrets.TOKEN }}

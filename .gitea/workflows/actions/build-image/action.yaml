@@ -35,7 +35,7 @@ runs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ${{ inputs.conext }}
+        context: ${{ inputs.context }}
         push: true
         tags: |
           gitea.jimmylab.duckdns.org/${{ github.actor }}/${{ inputs.image_name }}:latest
