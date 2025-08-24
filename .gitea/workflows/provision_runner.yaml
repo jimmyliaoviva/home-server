@@ -21,3 +21,10 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ inputs.ssh_private_key }}
+
+      - name: provision new runner
+        shell: bash
+        run: |
+          ssh jimmy@192.168.68.182 << 'EOF'
+          set -e
+          docker run

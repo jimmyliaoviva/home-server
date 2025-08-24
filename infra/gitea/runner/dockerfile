@@ -1,4 +1,4 @@
-FROM docker.io/gitea/act_runner:nightly
+FROM docker.io/gitea/act_runner:latest
 
 
 # 更新包管理器並安裝必要工具
