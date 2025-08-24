@@ -77,7 +77,9 @@ jobs:
           echo "context=$CONTEXT_VALUE" >> $GITHUB_OUTPUT
           echo "Context set to: $CONTEXT_VALUE"
 
-
+      - name: Debug
+        run: |
+          ls -al
 
       - name: Build images and upload
         uses: ./.gitea/workflows/actions/build-image
