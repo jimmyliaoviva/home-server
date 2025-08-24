@@ -20,7 +20,7 @@ services:
       - gitea-network
 
   runner:
-    image: gitea.jimmylab.duckdns.org/jimmy/runner:785c0692f5bb38d6b9ed5061b28010907ac02d1c
+    image: gitea.jimmylab.duckdns.org/jimmy/runner:latest
     stdin_open: true      # 等同於 docker run -i
     tty: true    
     restart: always
