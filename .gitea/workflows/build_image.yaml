@@ -78,3 +78,4 @@ jobs:
         with:
           context: ${{ env.context }}
           image_name: ${{ inputs.build_image }}
+          token: ${{ secrets.TOKEN }}

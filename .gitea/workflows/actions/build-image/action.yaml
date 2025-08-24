@@ -27,7 +27,7 @@ runs:
       with:
         registry: gitea.jimmylab.duckdns.org
         username: ${{ github.actor }}
-        password: ${{ secrets.TOKEN }}
+        password: ${{ inputs.token }}
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
