@@ -70,7 +70,7 @@ jobs:
         id: set-context
         run: |
           if [ "${{ inputs.build_image }}" == "runner" ]; then
-            CONTEXT_VALUE="./infra/${{ inputs.build_image }}"
+            CONTEXT_VALUE="./infra/gitea/${{ inputs.build_image }}"
           else
             CONTEXT_VALUE="./app/${{ inputs.build_image }}"
           fi
