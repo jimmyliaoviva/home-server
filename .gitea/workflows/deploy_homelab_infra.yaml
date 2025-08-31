@@ -1,0 +1,32 @@
+name: Deploy homelab infrastructure
+run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
+
+on:
+  workflow_dispatch:  # Allow manual triggering
+    # inputs:
+    #   service:
+    #     description: 'Select service to deploy'
+    #     required: true
+    #     default: 'both'
+    #     type: choice
+    #     options:
+    #       - openwebui-stack
+    #       - openwebui-only
+    #       - mcpo-only 
+
+jobs:
+  update-homelab-infra:
+    runs-on: n100
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: cd to infra tofu
+        run: |
+          cd infra/tofu/proxmox-k3s
+          pwd
+          ls -la
+
+      - name: tofu init
+        run: |
+          tofu init
