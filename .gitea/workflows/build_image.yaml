@@ -50,7 +50,7 @@ jobs:
           echo "context=$CONTEXT_VALUE" >> $GITHUB_OUTPUT
           echo "Context set to: $CONTEXT_VALUE"
 
-      - name: Build images and upload
+      - name: Build images and upload - ${{ inputs.build_image }}
         uses: ./.gitea/workflows/actions/build-image
         with:
           context:  ${{ steps.set-context.outputs.context }}
