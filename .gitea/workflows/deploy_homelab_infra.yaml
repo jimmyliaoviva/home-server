@@ -26,7 +26,6 @@ jobs:
           cd infra/tofu/proxmox-k3s
           pwd
           ls -la
-          tofu init
 
       - name: tofu init
         working-directory: infra/tofu/proxmox-k3s
