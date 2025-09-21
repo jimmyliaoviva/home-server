@@ -33,5 +33,8 @@ RUN TOFU_VERSION="1.10.5" && \
 # 驗證 OpenTofu 安裝
 RUN tofu version
 
+# 安裝 ansible (使用最新可用版本)
+RUN apk add --no-cache ansible
+
 # 保持原始 act_runner 的 entrypoint
 # 不覆蓋 ENTRYPOINT，使用原始鏡像的設定
