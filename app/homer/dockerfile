@@ -1,0 +1,2 @@
+FROM b4bz/homer:latest
+COPY . /www/assets 

@@ -1,0 +1,60 @@
+name: Build Docker Image
+run-name: Build ${{ inputs.build_image }}
+
+
+on:
+  workflow_dispatch:  # Allow manual triggering
+    inputs:
+      build_image:
+        description: 'Select the application to build'
+        required: true
+        type: choice
+        default: 'homer'
+        options:
+          - homer
+          - adguard
+          - aio_imaginary
+          - finmind
+          - grafana
+          - jenkins
+          - minecraft_season4
+          - minecraft_season5
+          - minecraft_season6
+          - minecraft_test
+          - mysql8
+          - n8n
+          - nginx-manager
+          - obsidian-sync
+          - open_vpn
+          - openwebui
+          - prometheus
+          - rancher
+          - semaphore
+          - uptime_kuma
+          - runner
+
+jobs:
+  build:
+    name: Build ${{ inputs.build_image }}
+    runs-on: n100
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Define context
+        id: set-context
+        run: |
+          if [ "${{ inputs.build_image }}" == "runner" ]; then
+            CONTEXT_VALUE="./infra/gitea/${{ inputs.build_image }}"
+          else
+            CONTEXT_VALUE="./app/${{ inputs.build_image }}"
+          fi
+          echo "context=$CONTEXT_VALUE" >> $GITHUB_OUTPUT
+          echo "Context set to: $CONTEXT_VALUE"
+
+      - name: Build images and upload - ${{ inputs.build_image }}
+        uses: ./.gitea/workflows/actions/build-image
+        with:
+          context:  ${{ steps.set-context.outputs.context }}
+          image_name: ${{ inputs.build_image }}
+          token: ${{ secrets.TOKEN }}
