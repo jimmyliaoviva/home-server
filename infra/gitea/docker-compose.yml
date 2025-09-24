@@ -24,6 +24,7 @@ services:
     stdin_open: true      # 等同於 docker run -i
     tty: true    
     restart: always
+    pull_policy: always
     environment:
       CONFIG_FILE: /config.yaml
       GITEA_INSTANCE_URL: "http://server:3000/"

@@ -49,7 +49,7 @@ if [ "$1" = "--restart-runner" ]; then
         echo "ℹ️  Actions Runner 狀態檢查中..."
         echo "如有問題，請查看日誌: docker-compose logs runner"
     fi
-    ehic "清理未使用的舊映像檔"
+    echo "清理未使用的舊映像檔"
     docker image prune -f
 
     echo ""

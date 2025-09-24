@@ -1,0 +1,21 @@
+# OpenTofu Configuration File
+# This file provides OpenTofu-specific settings for the Proxmox K3s module
+
+# Provider installation configuration
+provider_installation {
+  # Use the same provider registry as Terraform for compatibility
+  network_mirror {
+    url = "https://registry.opentofu.org/"
+  }
+  
+  # Fallback to Terraform registry for providers not yet in OpenTofu registry
+  network_mirror {
+    url = "https://registry.terraform.io/"
+  }
+}
+
+# Disable telemetry for privacy
+disable_checkpoint = true
+
+# Enable detailed logging for debugging (uncomment if needed)
+# log_level = "DEBUG"

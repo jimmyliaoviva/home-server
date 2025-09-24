@@ -1,0 +1,38 @@
+# K3s Configuration File
+# Place this file at /etc/rancher/k3s/config.yaml to customize k3s installation
+
+# Cluster configuration
+cluster-init: false
+token: "your-cluster-token-here"
+
+# Network configuration
+cluster-cidr: "10.42.0.0/16"
+service-cidr: "10.43.0.0/16"
+cluster-dns: "10.43.0.10"
+
+# Node configuration
+node-name: "k3s-node"
+node-label:
+  - "node-type=master"
+
+# Security configuration
+write-kubeconfig-mode: "644"
+protect-kernel-defaults: false
+
+# Disable components (uncomment to disable)
+# disable:
+#   - traefik
+#   - servicelb
+#   - metrics-server
+#   - local-storage
+
+# TLS configuration
+tls-san:
+  - "your-domain.com"
+  - "your-ip-address"
+
+# Data directory
+data-dir: "/var/lib/rancher/k3s"
+
+# Logging
+log: "/var/log/k3s.log"
