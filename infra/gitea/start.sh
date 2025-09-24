@@ -4,6 +4,7 @@
 # 此腳本用於啟動 Gitea 伺服器和 Actions Runner
 
 # 檢查參數
+docker pull gitea.jimmylab.duckdns.org/jimmy/runner:latest
 if [ "$1" = "--restart-runner" ]; then
     echo "🔄 正在重啟 Actions Runner（保持 Gitea 運行）..."
     
@@ -49,8 +50,7 @@ if [ "$1" = "--restart-runner" ]; then
         echo "ℹ️  Actions Runner 狀態檢查中..."
         echo "如有問題，請查看日誌: docker-compose logs runner"
     fi
-    echo "清理未使用的舊映像檔"
-    docker image prune -f
+
 
     echo ""
     echo "🔧 管理命令："
@@ -201,6 +201,9 @@ else
     echo "ℹ️  Actions Runner 狀態檢查中..."
     echo "如有問題，請查看日誌: docker-compose logs runner"
 fi
+
+echo "清理未使用的舊映像檔"
+docker image prune -f
 
 echo ""
 echo "🔧 管理命令："
