@@ -15,7 +15,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "4000:3000"
-      - "2222:22"
+      - "2222:2222"
     networks:
       - gitea-network
 
