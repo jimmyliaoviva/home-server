@@ -58,6 +58,7 @@ MCPO is a simple, secure MCP-to-OpenAPI proxy server that exposes any MCP tool a
    Time Server: http://mcpo:8000/time
    AWS Documentation: http://mcpo:8000/awslabs.aws-documentation-mcp-server
    Terraform Server: http://mcpo:8000/terraform
+   Sequential Thinking: http://mcpo:8000/sequential-thinking
    ```
 
    **注意**：在 Docker 網路中，使用容器名稱 `mcpo` 而不是 `localhost`
@@ -92,6 +93,10 @@ MCPO is a simple, secure MCP-to-OpenAPI proxy server that exposes any MCP tool a
    Name: MCPO Terraform
    URL: http://mcpo:8000/terraform
    API Key: Bearer top-secret
+   
+   Name: MCPO Sequential Thinking
+   URL: http://mcpo:8000/sequential-thinking
+   API Key: Bearer top-secret
    ```
 
 ## Configuration
@@ -111,18 +116,21 @@ The configuration includes multiple MCP servers:
 2. **Time Server** (`/time`) - Provides time-related tools with Asia/Taipei timezone
 3. **AWS Documentation Server** (`/awslabs.aws-documentation-mcp-server`) - Provides access to AWS documentation and resources
 4. **Terraform Server** (`/terraform`) - Provides Terraform documentation and provider discovery
+5. **Sequential Thinking Server** (`/sequential-thinking`) - Provides structured thinking and reasoning capabilities
 
 Each server is accessible at:
 - http://localhost:8000/memory
 - http://localhost:8000/time
 - http://localhost:8000/awslabs.aws-documentation-mcp-server
 - http://localhost:8000/terraform
+- http://localhost:8000/sequential-thinking
 
 Interactive documentation for each server:
 - http://localhost:8000/memory/docs
 - http://localhost:8000/time/docs
 - http://localhost:8000/awslabs.aws-documentation-mcp-server/docs
 - http://localhost:8000/terraform/docs
+- http://localhost:8000/sequential-thinking/docs
 
 ### MCP Configuration
 
@@ -205,6 +213,7 @@ Currently configured MCP servers:
 - `mcp-server-time` - Time and date utilities ✅ **已配置**
 - `awslabs.aws-documentation-mcp-server` - AWS documentation and resources ✅ **已配置**
 - `terraform-mcp-server` - Terraform documentation and provider discovery ✅ **已配置**
+- `@modelcontextprotocol/server-sequential-thinking` - Structured thinking and reasoning ✅ **已配置**
 
 
 

@@ -28,5 +28,7 @@ jobs:
           ls -la
 
       - name: tofu init
+        working-directory: infra/tofu/proxmox-k3s
         run: |
+          ls -la
           tofu init

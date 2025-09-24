@@ -1,0 +1,42 @@
+name: Deploy Docker Image
+run-name: Deploy ${{ inputs.build_image }}
+
+
+on:
+  workflow_dispatch:  # Allow manual triggering
+    inputs:
+      deploy_image:
+        description: 'Select the application to deploy'
+        required: true
+        type: choice
+        default: 'homer'
+        options:
+          - homer
+          - runner
+          - ./infra/postgresql
+  push:
+
+jobs:
+  build:
+    name: Deploy ${{ inputs.deploy_image }}
+    runs-on: n100
+    env:
+      deploy_image: "./infra/postgresql"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Define context
+        id: set-context
+        run: |
+          if [ "${{ env.deploy_image }}" == "runner" ]; then
+            CONTEXT_VALUE="./infra/gitea/${{ inputs.deploy_image }}"
+          else
+            CONTEXT_VALUE=".${{ env.deploy_image }}"
+          fi
+          echo "context=$CONTEXT_VALUE" >> $GITHUB_OUTPUT
+          echo "Context set to: $CONTEXT_VALUE"
+
+      - name: Deploy image and - ${{ env.deploy_image }}
+        run: |
+          ansible --v

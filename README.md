@@ -16,10 +16,13 @@ All services are containerized using Docker Compose for easy deployment and mana
 ### Infrastructure & DevOps
 - **[Gitea](infra/gitea/)** - Self-hosted Git service with Actions CI/CD
 - **[Jenkins](app/jenkins/)** - Automation server for CI/CD pipelines
+- **[Rancher](app/rancher/)** - Kubernetes management platform
 - **[Ansible Semaphore](app/semaphore/)** - Web UI for Ansible automation
 - **[Portainer](https://portainer.jimmylab.duckdns.org)** - Docker container management
 - **[Prometheus](app/prometheus/)** - Metrics collection and monitoring
 - **[Grafana](app/grafana/)** - Data visualization and dashboards
+- **[Terraform](infra/terraform/)** - Infrastructure as Code provisioning
+- **[Helm Charts](infra/helm/)** - Kubernetes application packaging
 
 ### Applications & Tools
 - **[Homer](app/homer/)** - Dashboard for all services
@@ -29,6 +32,7 @@ All services are containerized using Docker Compose for easy deployment and mana
 - **[Nextcloud](https://jimmyviva.tplinkdns.com)** - Personal cloud storage
 - **[Home Assistant](https://homeassistant.jimmylab.duckdns.org)** - Smart home automation
 - **[Obsidian Sync](app/obsidian-sync/)** - Note synchronization service
+- **[AIO Imaginary](app/aio_imaginary/)** - Image processing and manipulation service
 
 ### Network & Security
 - **[AdGuard Home](app/adguard/)** - DNS-based ad blocking
@@ -84,6 +88,8 @@ The [Homer dashboard](app/homer/) provides a centralized interface to access all
 Each service directory contains its own README with detailed setup instructions:
 
 - **Gitea**: See [infra/gitea/README.md](infra/gitea/README.md) for Git server setup
+- **Rancher**: See [app/rancher/README.md](app/rancher/README.md) for Kubernetes management
+- **K3s/Rancher Scripts**: See [infra/scripts/README.md](infra/scripts/README.md) for Kubernetes installation
 - **OpenWebUI**: See [app/openwebui/README.md](app/openwebui/README.md) for AI chat setup
 - **AdGuard**: See [app/adguard/readme.md](app/adguard/readme.md) for DNS configuration
 
@@ -125,13 +131,44 @@ docker-compose down
 docker-compose pull && docker-compose up -d
 ```
 
-### Automation
+### Infrastructure Automation
 
-The repository includes Ansible playbooks for automated deployment:
+The repository includes comprehensive automation tools:
 
+#### Ansible Playbooks
 ```bash
 cd infra/ansible
+# Deploy specific services
 ansible-playbook -i inventory deploy-homer-playbook.yml
+ansible-playbook -i inventory deploy-prometheus.yml
+ansible-playbook -i inventory deploy-finmind-playbook.yml
+ansible-playbook -i inventory deploy-uptime-kuma.yml
+
+# Backup operations
+ansible-playbook -i inventory nextcloud-backup-playbook.yaml
+```
+
+#### Kubernetes Management
+```bash
+cd infra/scripts
+# Install K3s cluster
+./install-k3s.sh
+
+# Install Rancher management platform
+./install-rancher.sh --hostname rancher.jimmylab.duckdns.org --password your-password
+```
+
+#### Infrastructure as Code
+```bash
+cd infra/terraform
+# Initialize Terraform
+terraform init
+
+# Plan infrastructure changes
+terraform plan
+
+# Apply infrastructure
+terraform apply
 ```
 
 ## 🌍 Network Configuration
