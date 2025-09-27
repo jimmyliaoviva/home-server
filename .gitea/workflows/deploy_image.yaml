@@ -1,6 +1,5 @@
 name: Deploy Docker Image
-run-name: Deploy ${{ inputs.build_image }}
-
+run-name: Deploy image
 
 on:
   workflow_dispatch:  # Allow manual triggering
@@ -9,34 +8,86 @@ on:
         description: 'Select the application to deploy'
         required: true
         type: choice
-        default: 'homer'
+        default: 'postgresql'
         options:
+          - postgresql
           - homer
-          - runner
-          - ./infra/postgresql
-  push:
-
+          - uptime_kuma
+          - prometheus
+          - mysql8
+          - nginx-manager
+          - grafana
+          - jenkins
+          - n8n
+          - adguard
+      target_server:
+        description: 'Select the site to deploy to'
+        required: true
+        type: choice
+        default: 'portainer'
+        options:
+          - portainer
+          - portainer2
+          - portainer3
+          - maple
+          - kuro
 jobs:
   build:
-    name: Deploy ${{ inputs.deploy_image }}
+    name: Deploy image
     runs-on: n100
     env:
-      deploy_image: "./infra/postgresql"
+      deploy_image: ${{ inputs.deploy_image }}
+      target_server: ${{ inputs.target_server }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Define context
-        id: set-context
-        run: |
-          if [ "${{ env.deploy_image }}" == "runner" ]; then
-            CONTEXT_VALUE="./infra/gitea/${{ inputs.deploy_image }}"
-          else
-            CONTEXT_VALUE=".${{ env.deploy_image }}"
-          fi
-          echo "context=$CONTEXT_VALUE" >> $GITHUB_OUTPUT
-          echo "Context set to: $CONTEXT_VALUE"
+      - name: Get server configuration
+        uses: ./.gitea/workflows/actions/get-server-config
+        id: server-config
+        with:
+          target_server: ${{ env.target_server }}
 
-      - name: Deploy image and - ${{ env.deploy_image }}
+      - name: Print debug info
         run: |
-          ansible --v
+          echo "Deploying image: ${{ env.deploy_image }}"
+          echo "Target server: ${{ env.target_server }}"
+          echo "SSH User: ${{ steps.server-config.outputs.ssh-user }}"
+          echo "SSH Host: ${{ steps.server-config.outputs.ssh-host }}"
+
+      - name: pull code
+        uses: ./.gitea/workflows/actions/pull-repo
+        with:
+          target_server: ${{ steps.server-config.outputs.ssh-host }}
+          repository_url: "https://github.com/jimmyliaoviva/home-server.git"
+          branch: ${{ gitea.ref_name || 'main' }}  # 如果 ref_name 為空則使用 main
+          ssh_user: ${{ steps.server-config.outputs.ssh-user }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          clone_method: 'pull'
+          target_directory: '/home/jimmy'
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Run Ansible deployment
+        shell: bash
+        working-directory: ./infra/ansible
+        run: |
+          # Convert deploy_image input to app_path
+          APP_PATH="app/${{ env.deploy_image }}"
+
+          echo "Deploying $APP_PATH to ${{ env.target_server }}"
+
+          # Make inventory script executable
+          chmod +x simple_inventory.py
+
+          # Test inventory script
+          python3 simple_inventory.py --list
+
+          ansible-playbook -i simple_inventory.py deploy-docker-compose.yml \
+            --extra-vars "app_name=${{ env.deploy_image }} app_path=$APP_PATH deploy_action=up postgres_user=${{ secrets.POSTGRES_USER }} postgres_password=${{ secrets.POSTGRES_PASSWORD }} postgres_db=${{ secrets.POSTGRES_DB }}" \
+            --limit ${{ env.target_server }} \
+            -v
+

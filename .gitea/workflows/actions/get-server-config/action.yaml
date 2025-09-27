@@ -1,0 +1,72 @@
+name: 'Get server config'
+description: 'Retrieve SSH configuration for a target server'
+author: 'Jimmy'
+
+inputs:
+  target_server:
+    description: 'Target server name'
+    required: true
+
+outputs:
+  ssh-user:
+    description: 'SSH username for the target server'
+    value: ${{ steps.get-info.outputs.user }}
+  ssh-host:
+    description: 'SSH host (same as target_server input)'
+    value: ${{ steps.get-info.outputs.host }} 
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Get server user mapping
+      id: get-info
+      shell: bash
+      # use bash to map server to user
+      run: |
+        case "${{ inputs.target_server }}" in
+          "portainer3")
+            USER="jimmy"
+            HOST=192.168.68.182
+            ;;
+          "portainer")
+            USER="jimmy"
+            HOST=192.168.68.124
+            ;;
+          "maple")
+            USER="one"
+            HOST=192.168.68.128
+            ;;
+          "kuro")
+            USER="jimmy"
+            HOST=192.168.68.120
+            ;;
+          "shiro")
+            USER="jimmy"
+            HOST=192.168.68.104
+            ;;
+          *)
+            echo "❌ Unknown target server: ${{ inputs.target_server }}"
+            exit 1
+            ;;
+        esac
+        echo "ssh-user=$USER" >> $GITHUB_OUTPUT
+        echo "ssh-host=$HOST" >> $GITHUB_OUTPUT
+        echo "✅ Mapped ${{ inputs.target_server }} "
+
+    # - name: Set up SSH
+    #   uses: webfactory/ssh-agent@v0.9.0
+    #   with:
+    #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    # - name: Add server to known hosts
+    #   shell: bash
+    #   run: |
+    #     ssh-keyscan -H ${{ inputs.target_server }} >> ~/.ssh/known_hosts
+
+    # - name: Test SSH connection
+    #   shell: bash
+    #   run: |
+    #     echo "🔗 Testing SSH connection to ${{ steps.get-info.outputs.user }}@$${{ steps.get-info.outputs.host }}..."
+    #     ssh -o ConnectTimeout=10 $${{ steps.get-info.outputs.user }}@${{ steps.get-info.outputs.host }} "echo '✅ SSH connection successful'"
+
+    
