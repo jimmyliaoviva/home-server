@@ -13,3 +13,8 @@ ovpn-admin
 
 # exclude .gitkeep files
 !.gitkeep
+
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
