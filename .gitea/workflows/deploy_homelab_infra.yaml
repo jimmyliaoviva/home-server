@@ -3,16 +3,6 @@ run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
 
 on:
   workflow_dispatch:  # Allow manual triggering
-    # inputs:
-    #   service:
-    #     description: 'Select service to deploy'
-    #     required: true
-    #     default: 'both'
-    #     type: choice
-    #     options:
-    #       - openwebui-stack
-    #       - openwebui-only
-    #       - mcpo-only 
 
 jobs:
   update-homelab-infra:
@@ -20,15 +10,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: cd to infra tofu
-        run: |
-          cd infra/tofu/proxmox-k3s
-          pwd
-          ls -la
 
-      - name: tofu init
-        working-directory: infra/tofu/proxmox-k3s
+      - name: Ansible run deploy k3s infra
         run: |
-          ls -la
-          tofu init
+          ansible-playbook infra/ansible/deploy-k3s-infra.yml -vvv
+
+      # - name: cd to infra tofu
+      #   run: |
+      #     cd infra/tofu/proxmox-k3s
+      #     pwd
+      #     ls -la
+
+      # - name: tofu init
+      #   working-directory: infra/tofu/proxmox-k3s
+      #   run: |
+      #     ls -la
+      #     tofu init
