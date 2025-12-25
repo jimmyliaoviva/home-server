@@ -34,6 +34,14 @@
       "args": [
         "mcp-server-fetch"
       ]
+    },
+    "microsoft-learn": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://learn.microsoft.com/api/mcp"
+      ]
     }
   }
 }
