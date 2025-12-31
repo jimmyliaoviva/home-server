@@ -1,0 +1,35 @@
+name: CI Pipeline
+run-name: CI for ${{ gitea.ref_name }} by ${{ gitea.actor }}
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: n100
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          # Add your test commands here
+          # Example: npm test, pytest, etc.
+
+      - name: Build
+        run: |
+          echo "Building project..."
+          # Add your build commands here
+          # Example: npm run build, docker build, etc.
+
+  # Call tag workflow after successful build (only on push to main)
+  create-tag:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.gitea/workflows/_add_tag.yaml
