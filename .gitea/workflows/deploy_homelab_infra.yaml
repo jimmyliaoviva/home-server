@@ -1,28 +1,78 @@
 name: Deploy homelab infrastructure
-run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
+run-name: ${{ gitea.actor }} is deploying K3s infrastructure with OpenTofu 🚀
 
 on:
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy (dev/prod)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
 
 jobs:
-  update-homelab-infra:
+  deploy-k3s-infra:
     runs-on: n100
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Ansible run deploy k3s infra
+      - name: Verify OpenTofu installation
         run: |
-          ansible-playbook infra/ansible/deploy-k3s-infra.yml -vvv
+          if ! command -v tofu &> /dev/null; then
+            echo "❌ OpenTofu is not installed"
+            exit 1
+          fi
+          echo "✅ OpenTofu version: $(tofu version)"
 
-      # - name: cd to infra tofu
-      #   run: |
-      #     cd infra/tofu/proxmox-k3s
-      #     pwd
-      #     ls -la
+      - name: Initialize OpenTofu
+        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        run: |
+          echo "🚀 Initializing OpenTofu for ${{ github.event.inputs.environment }} environment..."
+          tofu init
 
-      # - name: tofu init
-      #   working-directory: infra/tofu/proxmox-k3s
-      #   run: |
-      #     ls -la
-      #     tofu init
+      - name: Validate OpenTofu configuration
+        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        run: |
+          echo "🔍 Validating configuration..."
+          tofu validate
+
+      - name: Plan infrastructure changes
+        if: github.event.inputs.action == 'plan' || github.event.inputs.action == 'apply'
+        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        run: |
+          echo "📋 Planning infrastructure changes..."
+          tofu plan -var-file=terraform.tfvars
+
+      - name: Apply infrastructure changes
+        if: github.event.inputs.action == 'apply'
+        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        run: |
+          echo "🚀 Applying infrastructure changes..."
+          tofu apply -var-file=terraform.tfvars -auto-approve
+
+      - name: Destroy infrastructure
+        if: github.event.inputs.action == 'destroy'
+        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        run: |
+          echo "⚠️  Destroying infrastructure..."
+          tofu destroy -var-file=terraform.tfvars -auto-approve
+
+      - name: Show deployment status
+        if: github.event.inputs.action == 'apply'
+        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        run: |
+          echo "🎉 Deployment Summary:"
+          tofu output deployment_status 2>/dev/null || echo "Deployment completed"
