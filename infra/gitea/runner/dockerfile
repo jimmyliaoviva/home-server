@@ -33,8 +33,31 @@ RUN TOFU_VERSION="1.10.5" && \
 # 驗證 OpenTofu 安裝
 RUN tofu version
 
+# 安裝 Terragrunt
+RUN TERRAGRUNT_VERSION="0.96.1" && \
+    wget -O /usr/local/bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" && \
+    chmod +x /usr/local/bin/terragrunt
+
+# 驗證 Terragrunt 安裝
+RUN terragrunt --version
+
 # 安裝 ansible (使用最新可用版本)
 RUN apk add --no-cache ansible
+
+# 驗證 Ansible 安裝
+RUN ansible --version
+
+# 最終驗證 - 確認所有工具都已正確安裝
+RUN echo "=== Installed Tools ===" && \
+    echo "Node.js: $(node --version)" && \
+    echo "NPM: $(npm --version)" && \
+    echo "Yarn: $(yarn --version)" && \
+    echo "OpenTofu: $(tofu version | head -n1)" && \
+    echo "Terragrunt: $(terragrunt --version)" && \
+    echo "Ansible: $(ansible --version | head -n1)" && \
+    echo "Git: $(git --version)" && \
+    echo "Docker CLI: $(docker --version)" && \
+    echo "======================="
 
 # 保持原始 act_runner 的 entrypoint
 # 不覆蓋 ENTRYPOINT，使用原始鏡像的設定
