@@ -289,6 +289,7 @@ jobs:
 
   destroy-runner:
     needs: deploy-k3s-infra
+    if: always()
     uses: ./.gitea/workflows/destory_runner.yaml
     with:
       container_name: "k3s-deploy-${{ github.run_id }}"
