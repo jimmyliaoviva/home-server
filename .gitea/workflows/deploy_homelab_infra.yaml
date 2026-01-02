@@ -54,10 +54,14 @@ jobs:
 
       - name: Setup SSH key
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/home_server
-          chmod 600 ~/.ssh/home_server
-          echo "✅ SSH private key configured"
+          mkdir -p /tmp/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/.ssh/home_server
+          chmod 600 /tmp/.ssh/home_server
+          # Create symlink to home directory if possible, otherwise use /tmp
+          if [ -w ~/.ssh ]; then
+            ln -sf /tmp/.ssh/home_server ~/.ssh/home_server
+          fi
+          echo "✅ SSH private key configured at /tmp/.ssh/home_server"
 
       - name: Verify Terragrunt installation
         run: |
@@ -106,7 +110,7 @@ jobs:
             ssh_config = {
               public_key       = "${{ secrets.SSH_PUBLIC_KEY }}"
               username         = "jimmy"
-              private_key_path = "~/.ssh/home_server"
+              private_key_path = "/tmp/.ssh/home_server"
             }
 
             # Network configuration defaults
