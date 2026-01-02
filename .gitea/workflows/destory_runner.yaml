@@ -1,0 +1,72 @@
+name: Destroy gitea action Runner
+
+on:
+  workflow_dispatch:  # Allow manual triggering
+    inputs:
+      container_name:
+        description: 'Container name of the runner to destroy'
+        required: true
+        type: string
+  workflow_call:  # Allow being called by other workflows
+    inputs:
+      container_name:
+        description: 'Container name of the runner to destroy'
+        required: true
+        type: string
+
+jobs:
+  Destroy:
+    name: Destroy runner
+    runs-on: n100
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.GITHUB_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H 192.168.68.182 >> ~/.ssh/known_hosts
+
+      - name: destroy runner
+        shell: bash
+        run: |
+          ssh jimmy@192.168.68.182 << 'EOF'
+          set -e
+
+          echo "🗑️  Destroying Gitea Actions Runner on portainer3..."
+
+          # Use the input container name
+          CONTAINER_NAME="on-demand-${{ github.event.inputs.container_name }}"
+          echo "📝 Container name: $CONTAINER_NAME"
+
+          # Check if container exists
+          if docker ps -a --format '{{.Names}}' | grep -q "^$CONTAINER_NAME$"; then
+            echo "🔍 Found container: $CONTAINER_NAME"
+
+            # Stop the container
+            echo "⏹️  Stopping runner container..."
+            docker stop "$CONTAINER_NAME" 2>/dev/null || echo "⚠️  Container already stopped"
+
+            # Remove the container
+            echo "🧹 Removing runner container..."
+            docker rm "$CONTAINER_NAME"
+
+            echo "✅ Runner container destroyed successfully!"
+          else
+            echo "⚠️  Container '$CONTAINER_NAME' not found"
+            echo "📋 Available containers:"
+            docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" | grep -E "(NAMES|runner|on-demand)" || echo "No runner containers found"
+            exit 1
+          fi
+
+          echo ""
+          echo "🎉 Runner destruction completed!"
+          echo "📊 Remaining containers:"
+          docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" | grep -E "(NAMES|runner|on-demand)" || echo "No runner containers remaining"
+          EOF
