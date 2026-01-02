@@ -1,5 +1,5 @@
 name: Deploy homelab infrastructure
-run-name: ${{ gitea.actor }} is deploying K3s infrastructure with OpenTofu 🚀
+run-name: ${{ gitea.actor }} is deploying K3s infrastructure with Terragrunt 🚀
 
 on:
   workflow_dispatch:
@@ -12,6 +12,14 @@ on:
         options:
           - dev
           - prod
+      deployment_type:
+        description: 'Deployment type (single-node/multi-node)'
+        required: true
+        default: 'single-node'
+        type: choice
+        options:
+          - single-node
+          - multi-node
       action:
         description: 'Action to perform'
         required: true
@@ -25,9 +33,19 @@ on:
 jobs:
   deploy-k3s-infra:
     runs-on: n100
+    env:
+      TF_STATE_CONN_STR: ${{ secrets.TF_STATE_CONN_STR }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Verify Terragrunt installation
+        run: |
+          if ! command -v terragrunt &> /dev/null; then
+            echo "❌ Terragrunt is not installed"
+            exit 1
+          fi
+          echo "✅ Terragrunt version: $(terragrunt --version)"
 
       - name: Verify OpenTofu installation
         run: |
@@ -37,42 +55,164 @@ jobs:
           fi
           echo "✅ OpenTofu version: $(tofu version)"
 
-      - name: Initialize OpenTofu
-        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+      - name: Set deployment path
+        id: set_path
         run: |
-          echo "🚀 Initializing OpenTofu for ${{ github.event.inputs.environment }} environment..."
-          tofu init
+          DEPLOY_PATH="infra/tofu/proxmox-k3s/environments/${{ github.event.inputs.environment }}/${{ github.event.inputs.deployment_type }}"
+          echo "deploy_path=$DEPLOY_PATH" >> $GITHUB_OUTPUT
+          echo "🎯 Deployment path: $DEPLOY_PATH"
 
-      - name: Validate OpenTofu configuration
-        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+      - name: Verify deployment path exists
+        run: |
+          if [ ! -d "${{ steps.set_path.outputs.deploy_path }}" ]; then
+            echo "❌ Deployment path does not exist: ${{ steps.set_path.outputs.deploy_path }}"
+            exit 1
+          fi
+          echo "✅ Deployment path exists"
+
+      - name: Initialize Terragrunt
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
+        run: |
+          echo "🚀 Initializing Terragrunt for ${{ github.event.inputs.environment }} environment (${{ github.event.inputs.deployment_type }})..."
+          if [ "${{ github.event.inputs.deployment_type }}" == "multi-node" ]; then
+            terragrunt run-all init
+          else
+            terragrunt init
+          fi
+
+      - name: Validate Terragrunt configuration
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
         run: |
           echo "🔍 Validating configuration..."
-          tofu validate
+          if [ "${{ github.event.inputs.deployment_type }}" == "multi-node" ]; then
+            terragrunt run-all validate
+          else
+            terragrunt validate
+          fi
 
       - name: Plan infrastructure changes
         if: github.event.inputs.action == 'plan' || github.event.inputs.action == 'apply'
-        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
         run: |
           echo "📋 Planning infrastructure changes..."
-          tofu plan -var-file=terraform.tfvars
+          if [ "${{ github.event.inputs.deployment_type }}" == "multi-node" ]; then
+            echo "📊 Planning all nodes in dependency order..."
+            terragrunt run-all plan
+          else
+            terragrunt plan
+          fi
 
       - name: Apply infrastructure changes
         if: github.event.inputs.action == 'apply'
-        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
         run: |
           echo "🚀 Applying infrastructure changes..."
-          tofu apply -var-file=terraform.tfvars -auto-approve
+          if [ "${{ github.event.inputs.deployment_type }}" == "multi-node" ]; then
+            echo "📊 Deploying all nodes in dependency order..."
+            echo "   1️⃣  Server node will be deployed first"
+            echo "   2️⃣  Agent nodes will be deployed after server is ready"
+            terragrunt run-all apply -auto-approve
+          else
+            terragrunt apply -auto-approve
+          fi
 
       - name: Destroy infrastructure
         if: github.event.inputs.action == 'destroy'
-        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
         run: |
           echo "⚠️  Destroying infrastructure..."
-          tofu destroy -var-file=terraform.tfvars -auto-approve
+          if [ "${{ github.event.inputs.deployment_type }}" == "multi-node" ]; then
+            echo "🗑️  Destroying all nodes in reverse dependency order..."
+            terragrunt run-all destroy -auto-approve
+          else
+            terragrunt destroy -auto-approve
+          fi
 
       - name: Show deployment status
         if: github.event.inputs.action == 'apply'
-        working-directory: infra/tofu/proxmox-k3s/envs/${{ github.event.inputs.environment }}
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
         run: |
           echo "🎉 Deployment Summary:"
-          tofu output deployment_status 2>/dev/null || echo "Deployment completed"
+          echo "================================"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Deployment Type: ${{ github.event.inputs.deployment_type }}"
+          echo "================================"
+
+          if [ "${{ github.event.inputs.deployment_type }}" == "multi-node" ]; then
+            echo ""
+            echo "📊 Multi-Node Cluster Status:"
+            echo "----------------------------"
+
+            echo ""
+            echo "🖥️  Server Node:"
+            cd server && terragrunt output 2>/dev/null || echo "  ⚠️  No output available"
+            cd ..
+
+            echo ""
+            echo "🖥️  Agent Node 1:"
+            cd agent-01 && terragrunt output 2>/dev/null || echo "  ⚠️  No output available"
+            cd ..
+
+            echo ""
+            echo "🖥️  Agent Node 2:"
+            cd agent-02 && terragrunt output 2>/dev/null || echo "  ⚠️  No output available"
+            cd ..
+
+            echo ""
+            echo "✅ To verify the cluster, SSH to the server node and run:"
+            echo "   kubectl get nodes"
+          else
+            echo ""
+            echo "📊 Single-Node Deployment:"
+            terragrunt output 2>/dev/null || echo "Deployment completed"
+          fi
+
+          echo ""
+          echo "================================"
+          echo "🎊 Deployment completed successfully!"
+
+      - name: Installation instructions
+        if: github.event.inputs.action == 'apply'
+        run: |
+          echo ""
+          echo "📝 Next Steps:"
+          echo "================================"
+
+          if [ "${{ github.event.inputs.deployment_type }}" == "multi-node" ]; then
+            echo ""
+            echo "For Multi-Node cluster, K3s needs to be installed manually:"
+            echo ""
+            echo "1️⃣  Install K3s on Server node:"
+            echo "   SERVER_IP=\$(cd ${{ steps.set_path.outputs.deploy_path }}/server && terragrunt output -raw vm_ip 2>/dev/null)"
+            echo "   ssh -i ~/.ssh/home_server jimmy@\$SERVER_IP"
+            echo "   curl -sfL https://get.k3s.io | K3S_TOKEN=\"your-token\" sh -s - server --cluster-init --disable=traefik --disable=servicelb"
+            echo ""
+            echo "2️⃣  Install K3s on Agent nodes:"
+            echo "   AGENT1_IP=\$(cd ${{ steps.set_path.outputs.deploy_path }}/agent-01 && terragrunt output -raw vm_ip 2>/dev/null)"
+            echo "   ssh -i ~/.ssh/home_server jimmy@\$AGENT1_IP"
+            echo "   curl -sfL https://get.k3s.io | K3S_URL=https://\$SERVER_IP:6443 K3S_TOKEN=\"your-token\" sh -"
+            echo ""
+            echo "   AGENT2_IP=\$(cd ${{ steps.set_path.outputs.deploy_path }}/agent-02 && terragrunt output -raw vm_ip 2>/dev/null)"
+            echo "   ssh -i ~/.ssh/home_server jimmy@\$AGENT2_IP"
+            echo "   curl -sfL https://get.k3s.io | K3S_URL=https://\$SERVER_IP:6443 K3S_TOKEN=\"your-token\" sh -"
+            echo ""
+            echo "3️⃣  Verify cluster:"
+            echo "   ssh -i ~/.ssh/home_server jimmy@\$SERVER_IP"
+            echo "   kubectl get nodes"
+          else
+            echo ""
+            echo "For Single-Node deployment, K3s needs to be installed manually:"
+            echo ""
+            echo "1️⃣  Get the VM IP and SSH in:"
+            echo "   VM_IP=\$(cd ${{ steps.set_path.outputs.deploy_path }} && terragrunt output -raw vm_ip 2>/dev/null)"
+            echo "   ssh -i ~/.ssh/home_server jimmy@\$VM_IP"
+            echo ""
+            echo "2️⃣  Install K3s:"
+            echo "   curl -sfL https://get.k3s.io | K3S_TOKEN=\"your-token\" sh -s - --disable=traefik --disable=servicelb"
+            echo ""
+            echo "3️⃣  Verify installation:"
+            echo "   kubectl get nodes"
+          fi
+
+          echo ""
+          echo "================================"
