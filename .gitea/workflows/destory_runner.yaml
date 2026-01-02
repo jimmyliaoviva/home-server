@@ -47,7 +47,7 @@ jobs:
           echo "🗑️  Destroying Gitea Actions Runner on portainer3..."
 
           # Use the input container name
-          CONTAINER_NAME="on-demand-${{ github.event.inputs.container_name }}"
+          CONTAINER_NAME="on-demand-${{ inputs.container_name }}"
           echo "📝 Container name: $CONTAINER_NAME"
 
           # Check if container exists
