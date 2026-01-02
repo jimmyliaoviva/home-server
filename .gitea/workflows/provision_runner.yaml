@@ -7,6 +7,12 @@ on:
         description: 'Container name for the runner'
         required: true
         type: string
+  workflow_call:  # Allow being called by other workflows
+    inputs:
+      container_name:
+        description: 'Container name for the runner'
+        required: true
+        type: string
 
 jobs:
   Provision:
@@ -44,7 +50,7 @@ jobs:
           docker pull gitea.jimmylab.duckdns.org/jimmy/runner:latest
 
           # Use the input container name
-          CONTAINER_NAME="${{ github.event.inputs.container_name }}"
+          CONTAINER_NAME="on-demand-${{ github.event.inputs.container_name }}"
           echo "📝 Container name: $CONTAINER_NAME"
 
           # Start the runner container (no config file needed - all via env vars)
