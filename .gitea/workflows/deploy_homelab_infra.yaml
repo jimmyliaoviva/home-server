@@ -140,6 +140,17 @@ jobs:
           fi
           echo "✅ Deployment path exists"
 
+      - name: Verify TF_STATE_CONN_STR
+        run: |
+          echo "🔍 Checking TF_STATE_CONN_STR environment variable..."
+          if [ -z "$TF_STATE_CONN_STR" ]; then
+            echo "❌ TF_STATE_CONN_STR is not set!"
+            exit 1
+          fi
+          echo "✅ TF_STATE_CONN_STR is set (length: ${#TF_STATE_CONN_STR} characters)"
+          # Show connection string format (mask password)
+          echo "$TF_STATE_CONN_STR" | sed 's/:.*@/:***@/'
+
       - name: Initialize Terragrunt
         working-directory: ${{ steps.set_path.outputs.deploy_path }}
         run: |
