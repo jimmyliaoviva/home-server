@@ -2,15 +2,14 @@ name: Provision gitea action Runner
 
 on:
   workflow_dispatch:  # Allow manual triggering
+    inputs:
+      container_name:
+        description: 'Container name for the runner'
+        required: true
+        type: string
 
 jobs:
-  build:
-    uses: ./.gitea/workflows/build-image.yaml
-    with:
-      build_image: runner
-
-
-  Provisioin:
+  Provision:
     name: Start runner
     runs-on: n100
     steps:
@@ -20,11 +19,71 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ inputs.ssh_private_key }}
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+            ${{ secrets.GITHUB_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H 192.168.68.182 >> ~/.ssh/known_hosts
 
       - name: provision new runner
         shell: bash
         run: |
           ssh jimmy@192.168.68.182 << 'EOF'
           set -e
-          docker run
+
+          echo "🚀 Provisioning Gitea Actions Runner on portainer3..."
+
+          # Login to Gitea registry first
+          echo "🔐 Logging into Gitea registry..."
+          echo "${{ secrets.TOKEN }}" | docker login gitea.jimmylab.duckdns.org -u jimmy --password-stdin
+
+          # Pull latest runner image
+          echo "📦 Pulling latest runner image..."
+          docker pull gitea.jimmylab.duckdns.org/jimmy/runner:latest
+
+          # Use the input container name
+          CONTAINER_NAME="${{ github.event.inputs.container_name }}"
+          echo "📝 Container name: $CONTAINER_NAME"
+
+          # Start the runner container (no config file needed - all via env vars)
+          echo "🚀 Starting runner container..."
+          docker run -d \
+            --name "$CONTAINER_NAME" \
+            --restart=always \
+            --network gitea_gitea-network \
+            -e GITEA_INSTANCE_URL="http://server:3000/" \
+            -e GITEA_RUNNER_REGISTRATION_TOKEN="${{ secrets.RUNNER_TOKEN }}" \
+            -e GITEA_RUNNER_NAME="on-demand-runner" \
+            -e GITEA_RUNNER_LABELS="on-demand" \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            gitea.jimmylab.duckdns.org/jimmy/runner:latest
+
+          echo "⏳ Waiting for runner to initialize..."
+          sleep 15
+
+          # Verify runner is running
+          if docker ps | grep -q "$CONTAINER_NAME"; then
+            echo "✅ Runner container is running"
+
+            # Check logs for connection status
+            if docker logs "$CONTAINER_NAME" 2>&1 | grep -q "Connect to Gitea"; then
+              echo "✅ Runner successfully connected to Gitea!"
+            else
+              echo "⚠️  Runner is running but may not be connected yet"
+              echo "📋 Recent logs:"
+              docker logs --tail 20 "$CONTAINER_NAME"
+            fi
+          else
+            echo "❌ Runner container failed to start"
+            echo "📋 Error logs:"
+            docker logs "$CONTAINER_NAME" 2>/dev/null || echo "No logs available"
+            exit 1
+          fi
+
+          echo ""
+          echo "🎉 Runner provisioning completed!"
+          echo "📊 Container status:"
+          docker ps | grep "$CONTAINER_NAME"
+          EOF
