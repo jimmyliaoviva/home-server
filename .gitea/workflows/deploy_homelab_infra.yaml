@@ -34,7 +34,7 @@ jobs:
   provision-runner:
     uses: ./.gitea/workflows/provision_runner.yaml
     with:
-      container_name: "k3s-deploy-${{ github.run_id }}"
+      container_name: "k3s-deploy"
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       GITHUB_KEY: ${{ secrets.GITHUB_KEY }}
@@ -292,11 +292,11 @@ jobs:
           echo "================================"
 
   destroy-runner:
-    needs: deploy-k3s-infra
+    needs: [provision-runner, deploy-k3s-infra]
     if: always()
     uses: ./.gitea/workflows/destory_runner.yaml
     with:
-      container_name: "k3s-deploy-${{ github.run_id }}"
+      container_name: "k3s-deploy"
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       GITHUB_KEY: ${{ secrets.GITHUB_KEY }}
