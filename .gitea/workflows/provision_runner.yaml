@@ -13,6 +13,15 @@ on:
         description: 'Container name for the runner'
         required: true
         type: string
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+      GITHUB_KEY:
+        required: true
+      RUNNER_TOKEN:
+        required: true
+      TOKEN:
+        required: true
 
 jobs:
   Provision:

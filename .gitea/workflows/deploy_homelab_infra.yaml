@@ -35,6 +35,11 @@ jobs:
     uses: ./.gitea/workflows/provision_runner.yaml
     with:
       container_name: "k3s-deploy-${{ github.run_id }}"
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      GITHUB_KEY: ${{ secrets.GITHUB_KEY }}
+      RUNNER_TOKEN: ${{ secrets.RUNNER_TOKEN }}
+      TOKEN: ${{ secrets.TOKEN }}
   
   deploy-k3s-infra:
     needs: provision-runner
@@ -287,3 +292,6 @@ jobs:
     uses: ./.gitea/workflows/destory_runner.yaml
     with:
       container_name: "k3s-deploy-${{ github.run_id }}"
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      GITHUB_KEY: ${{ secrets.GITHUB_KEY }}
