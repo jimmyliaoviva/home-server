@@ -82,6 +82,16 @@ jobs:
           echo "deploy_path=$DEPLOY_PATH" >> $GITHUB_OUTPUT
           echo "🎯 Deployment path: $DEPLOY_PATH"
 
+      - name: Debug working directory
+        run: |
+          echo "📁 Current directory: $(pwd)"
+          echo "📋 Directory contents:"
+          ls -la
+          echo "📋 Checking infra directory:"
+          ls -la infra/ || echo "infra directory not found"
+          echo "📋 Checking environments directory:"
+          ls -la infra/tofu/proxmox-k3s/environments/${{ github.event.inputs.environment }}/ || echo "Environment directory not found"
+
       - name: Generate env-vars.hcl from secrets
         run: |
           ENV_VARS_FILE="infra/tofu/proxmox-k3s/environments/${{ github.event.inputs.environment }}/env-vars.hcl"
