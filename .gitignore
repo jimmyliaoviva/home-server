@@ -18,3 +18,6 @@ ovpn-admin
 *.tfstate
 *.tfstate.backup
 .terraform.lock.hcl
+.terragrunt-cache/
+env-vars.hcl
+*.tfvars
