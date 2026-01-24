@@ -118,22 +118,22 @@ jobs:
 
       - name: Initialize Terragrunt
         working-directory: ${{ steps.set_path.outputs.deploy_path }}
-        run: ./init.sh
+        run: bash init.sh
 
       - name: Plan changes
         if: github.event.inputs.action == 'plan' || github.event.inputs.action == 'apply'
         working-directory: ${{ steps.set_path.outputs.deploy_path }}
-        run: ./plan.sh
+        run: bash plan.sh
 
       - name: Apply changes
         if: github.event.inputs.action == 'apply'
         working-directory: ${{ steps.set_path.outputs.deploy_path }}
-        run: ./apply.sh
+        run: bash apply.sh
 
       - name: Destroy infrastructure
         if: github.event.inputs.action == 'destroy'
         working-directory: ${{ steps.set_path.outputs.deploy_path }}
-        run: ./destroy.sh
+        run: bash destroy.sh
 
   destroy-runner:
     needs: [provision-runner, deploy-k3s-infra]
