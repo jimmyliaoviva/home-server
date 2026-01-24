@@ -5,21 +5,43 @@ include "root" {
   path = find_in_parent_folders()
 }
 
-# Load environment variables and common defaults
+# Load common defaults
 locals {
-  # Load environment-specific variables
-  env_vars_file = find_in_parent_folders("env-vars.hcl")
-  env_vars      = read_terragrunt_config(local.env_vars_file)
-
-  # Load common defaults
   common_file = find_in_parent_folders("_common/common.hcl")
   common      = read_terragrunt_config(local.common_file)
 
-  # Extract configs for easier access
-  proxmox_config   = local.env_vars.locals.proxmox_config
-  ssh_config       = local.env_vars.locals.ssh_config
-  network_defaults = local.env_vars.locals.network_defaults
-  k3s_defaults     = local.env_vars.locals.k3s_defaults
+  # Proxmox configuration from environment variables
+  proxmox_config = {
+    endpoint     = get_env("PROXMOX_ENDPOINT")
+    username     = get_env("PROXMOX_USERNAME")
+    password     = get_env("PROXMOX_PASSWORD")
+    node         = get_env("PROXMOX_NODE")
+    tls_insecure = get_env("PROXMOX_TLS_INSECURE", "true") == "true"
+    timeout      = tonumber(get_env("PROXMOX_TIMEOUT", "300"))
+  }
+
+  # SSH configuration from environment variables
+  ssh_config = {
+    public_key       = get_env("SSH_PUBLIC_KEY")
+    username         = get_env("SSH_USERNAME", "jimmy")
+    private_key_path = get_env("SSH_PRIVATE_KEY_PATH", "~/.ssh/home_server")
+  }
+
+  # Network configuration from environment variables
+  network_defaults = {
+    gateway        = get_env("NETWORK_GATEWAY", "192.168.68.1")
+    nameserver     = get_env("NETWORK_NAMESERVER", "8.8.8.8")
+    nameserver_2   = get_env("NETWORK_NAMESERVER_2", "1.1.1.1")
+    domain         = get_env("NETWORK_DOMAIN", "local")
+    interface_name = get_env("NETWORK_INTERFACE", "eth0")
+  }
+
+  # K3s configuration from environment variables
+  k3s_defaults = {
+    version      = get_env("K3S_VERSION", "v1.28.2+k3s1")
+    token        = get_env("K3S_TOKEN", "")
+    install_exec = get_env("K3S_INSTALL_EXEC", "")
+  }
 
   # Common defaults
   default_system_config = local.common.locals.default_system_config
