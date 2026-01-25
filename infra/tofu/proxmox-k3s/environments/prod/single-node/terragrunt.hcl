@@ -36,17 +36,8 @@ locals {
     interface_name = get_env("NETWORK_INTERFACE", "eth0")
   }
 
-  # K3s configuration from environment variables
-  k3s_defaults = {
-    version      = get_env("K3S_VERSION", "v1.28.2+k3s1")
-    token        = get_env("K3S_TOKEN", "")
-    install_exec = get_env("K3S_INSTALL_EXEC", "")
-  }
-
   # Common defaults
   default_system_config = local.common.locals.default_system_config
-  default_k3s_config    = local.common.locals.default_k3s_config
-  validation_config     = local.common.locals.validation_config
 }
 
 # Point to the compute module using relative path from root
@@ -72,17 +63,6 @@ inputs = {
     description = "K3s production cluster - single node"
   }
 
-  # K3s configuration - merge defaults with component-specific
-  k3s_config = merge(
-    local.k3s_defaults,
-    local.default_k3s_config,
-    {
-      node_name    = ""
-      cluster_cidr = "10.42.0.0/16"
-      service_cidr = "10.43.0.0/16"
-    }
-  )
-
   # SSH configuration
   ssh_config = local.ssh_config
 
@@ -96,7 +76,4 @@ inputs = {
 
   # System configuration - use common defaults
   system_config = local.default_system_config
-
-  # Validation configuration
-  validation_config = local.validation_config
 }
