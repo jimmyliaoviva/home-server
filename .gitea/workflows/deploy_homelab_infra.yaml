@@ -1,34 +1,146 @@
 name: Deploy homelab infrastructure
-run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
+run-name: ${{ gitea.actor }} is deploying K3s infrastructure with Terragrunt 🚀
 
 on:
-  workflow_dispatch:  # Allow manual triggering
-    # inputs:
-    #   service:
-    #     description: 'Select service to deploy'
-    #     required: true
-    #     default: 'both'
-    #     type: choice
-    #     options:
-    #       - openwebui-stack
-    #       - openwebui-only
-    #       - mcpo-only 
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy (dev/prod)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+      deployment_type:
+        description: 'Deployment type (single-node/multi-node)'
+        required: true
+        default: 'single-node'
+        type: choice
+        options:
+          - single-node
+          - multi-node
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
 
 jobs:
-  update-homelab-infra:
+  Summary:
     runs-on: n100
+    outputs:
+      environment: ${{ github.event.inputs.environment }}
+      deployment_type: ${{ github.event.inputs.deployment_type }}
+      action: ${{ github.event.inputs.action }}
+    steps:
+      - name: Summary of Deployment
+        run: |
+          echo "================================"
+          echo "🏗️  K3s Infrastructure Deployment Summary"
+          echo "================================"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Deployment Type: ${{ github.event.inputs.deployment_type }}"
+          echo "Action: ${{ github.event.inputs.action }}"
+          echo "================================"
+  provision-runner:
+    uses: ./.gitea/workflows/provision_runner.yaml
+    with:
+      container_name: "k3s-deploy"
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      GITHUB_KEY: ${{ secrets.GITHUB_KEY }}
+      RUNNER_TOKEN: ${{ secrets.RUNNER_TOKEN }}
+      TOKEN: ${{ secrets.TOKEN }}
+  
+  deploy-k3s-infra:
+    needs: provision-runner
+    runs-on: on-demand
+    env:
+      # Terraform state backend
+      TF_STATE_CONN_STR: "postgres://${{ vars.POSTGRESQL_USER }}:${{ secrets.POSTGRESQL_PASSWORD }}@192.168.68.120:5432/tofu_state?sslmode=disable"
+
+      # Proxmox configuration (supports both single and multi-cluster)
+      PROXMOX_ENDPOINT: "${{ vars.N100_PROXMOX_ENDPOINT }}"
+      PROXMOX_USERNAME: "${{ vars.N100_PROXMOX_TOKEN_ID }}"
+      PROXMOX_PASSWORD: "${{ secrets.N100_PROXMOX_TOKEN_SECRET }}"
+      PROXMOX_NODE: "${{ vars.N100_PROXMOX_NODE }}"
+      PROXMOX_TLS_INSECURE: "true"
+      PROXMOX_TIMEOUT: "300"
+
+      # Multi-cluster configuration (for multi-node deployments)
+      PROXMOX_ENDPOINT_CLUSTER1: "${{ vars.N100_PROXMOX_ENDPOINT }}"
+      PROXMOX_USERNAME_CLUSTER1: "${{ vars.N100_PROXMOX_TOKEN_ID }}"
+      PROXMOX_PASSWORD_CLUSTER1: "${{ secrets.N100_PROXMOX_TOKEN_SECRET }}"
+      PROXMOX_NODE_CLUSTER1: "${{ vars.N100_PROXMOX_NODE }}"
+
+      PROXMOX_ENDPOINT_CLUSTER2: "${{ vars.SHIRO_PROXMOX_ENDPOINT }}"
+      PROXMOX_USERNAME_CLUSTER2: "${{ vars.SHIRO_PROXMOX_TOKEN_ID }}"
+      PROXMOX_PASSWORD_CLUSTER2: "${{ secrets.SHIRO_PROXMOX_TOKEN_SECRET }}"
+      PROXMOX_NODE_CLUSTER2: "${{ vars.SHIRO_PROXMOX_NODE }}"
+
+      # SSH configuration
+      SSH_PUBLIC_KEY: "${{ secrets.SSH_PUBLIC_KEY }}"
+      SSH_USERNAME: "jimmy"
+      SSH_PRIVATE_KEY_PATH: "/tmp/.ssh/home_server"
+
+      # Network configuration
+      NETWORK_GATEWAY: "${{ vars.NETWORK_GATEWAY }}"
+      NETWORK_NAMESERVER: "8.8.8.8"
+      NETWORK_NAMESERVER_2: "1.1.1.1"
+      NETWORK_DOMAIN: "local"
+      NETWORK_INTERFACE: "eth0"
+
+      # K3s configuration (for prod environments)
+      K3S_VERSION: "${{ vars.K3S_VERSION || 'latest' }}"
+      K3S_TOKEN: "${{ secrets.K3S_TOKEN }}"
+      K3S_INSTALL_EXEC: "--disable=traefik --disable=servicelb"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: cd to infra tofu
-        run: |
-          cd infra/tofu/proxmox-k3s
-          pwd
-          ls -la
 
-      - name: tofu init
-        working-directory: infra/tofu/proxmox-k3s
+      - name: Setup SSH key
         run: |
-          ls -la
-          tofu init
+          mkdir -p /tmp/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/.ssh/home_server
+          chmod 600 /tmp/.ssh/home_server
+
+      - name: Set deployment path
+        id: set_path
+        run: |
+          DEPLOY_PATH="infra/tofu/proxmox-k3s/environments/${{ github.event.inputs.environment }}/${{ github.event.inputs.deployment_type }}"
+          echo "deploy_path=$DEPLOY_PATH" >> $GITHUB_OUTPUT
+
+      - name: Initialize Terragrunt
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
+        run: bash init.sh
+
+      - name: Plan changes
+        if: github.event.inputs.action == 'plan' || github.event.inputs.action == 'apply'
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
+        run: bash plan.sh
+
+      - name: Apply changes
+        if: github.event.inputs.action == 'apply'
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
+        run: bash apply.sh
+
+      - name: Destroy infrastructure
+        if: github.event.inputs.action == 'destroy'
+        working-directory: ${{ steps.set_path.outputs.deploy_path }}
+        run: bash destroy.sh
+
+  destroy-runner:
+    needs: [provision-runner, deploy-k3s-infra]
+    if: always()
+    uses: ./.gitea/workflows/destory_runner.yaml
+    with:
+      container_name: "k3s-deploy"
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      GITHUB_KEY: ${{ secrets.GITHUB_KEY }}

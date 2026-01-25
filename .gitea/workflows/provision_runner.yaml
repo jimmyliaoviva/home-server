@@ -13,6 +13,15 @@ on:
         description: 'Container name for the runner'
         required: true
         type: string
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+      GITHUB_KEY:
+        required: true
+      RUNNER_TOKEN:
+        required: true
+      TOKEN:
+        required: true
 
 jobs:
   Provision:
@@ -50,7 +59,7 @@ jobs:
           docker pull gitea.jimmylab.duckdns.org/jimmy/runner:latest
 
           # Use the input container name
-          CONTAINER_NAME="on-demand-${{ github.event.inputs.container_name }}"
+          CONTAINER_NAME="on-demand-${{ inputs.container_name }}"
           echo "📝 Container name: $CONTAINER_NAME"
 
           # Start the runner container (no config file needed - all via env vars)
@@ -64,6 +73,7 @@ jobs:
             -e GITEA_RUNNER_NAME="on-demand-runner" \
             -e GITEA_RUNNER_LABELS="on-demand" \
             -v /var/run/docker.sock:/var/run/docker.sock \
+            -v ~/.ssh/home_server:/root/.ssh/home_server:ro \
             gitea.jimmylab.duckdns.org/jimmy/runner:latest
 
           echo "⏳ Waiting for runner to initialize..."
