@@ -1,22 +1,32 @@
-name: Deploy OpenWebUI and MCPO server
-run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
+name: Deploy OpenWebUI server with migration
+run-name: ${{ gitea.actor }} deploying OpenWebUI 🚀
 
 on:
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:
     inputs:
-      service:
-        description: 'Select service to deploy'
+      action:
+        description: 'Action'
         required: true
-        default: 'both'
+        default: 'deploy-only'
         type: choice
         options:
-          - openwebui-stack
-          - openwebui-only
-          - mcpo-only
+          - deploy-only
+          - deploy-with-migration
+      source_server:
+        description: 'Source server IP'
+        required: false
+        default: '192.168.68.124'
+      target_server:
+        description: 'Target server IP'
+        required: false
+        default: '192.168.68.120'
 
+env:
+  SOURCE_SERVER: ${{ github.event.inputs.source_server || '192.168.68.124' }}
+  TARGET_SERVER: ${{ github.event.inputs.target_server || '192.168.68.120' }}
 
 jobs:
-  update-open-webui:
+  deploy-migrate:
     runs-on: n100
     steps:
       - name: Checkout code
@@ -29,37 +39,58 @@ jobs:
             ${{ secrets.SSH_PRIVATE_KEY }}
             ${{ secrets.GITHUB_KEY}}
           
-      - name: Add server to known hosts
+      - name: Add servers to known hosts
         run: |
-          ssh-keyscan -H 192.168.68.124 >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ env.SOURCE_SERVER }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ env.TARGET_SERVER }} >> ~/.ssh/known_hosts
 
-      - name: Deploy OpenWebUI and MCPO server
+      - name: Migrate data and deploy
+        if: github.event.inputs.action == 'deploy-with-migration'
+        run: |
+          ssh jimmy@${{ env.TARGET_SERVER }} -A << 'EOF'
+          echo "📦 Copying data from $SOURCE_SERVER to $TARGET_SERVER..."
+          cd /home/jimmy/home-server/app/openwebui/data
+          
+          # Backup existing data
+          mv webui.db webui.db.bak 2>/dev/null || true
+          mv uploads uploads.bak 2>/dev/null || true
+          mv vector_db vector_db.bak 2>/dev/null || true
+          
+          # Copy files
+          rsync -avz jimmy@${{ env.SOURCE_SERVER }}:/home/jimmy/home-server/app/openwebui/data/webui.db ./
+          rsync -avz jimmy@${{ env.SOURCE_SERVER }}:/home/jimmy/home-server/app/openwebui/data/uploads ./
+          rsync -avz jimmy@${{ env.SOURCE_SERVER }}:/home/jimmy/home-server/app/openwebui/data/vector_db ./
+          
+          # Fix permissions
+          sudo chown -R 1000:1000 /home/jimmy/home-server/app/openwebui/data/
+          
+          # Restart container to pick up new data
+          docker compose restart open-webui
+          echo "✅ Data copied and container restarted"
+          EOF
+
+      - name: Deploy OpenWebUI
         run: |  
-          ssh jimmy@192.168.68.124 -A << 'EOF'
-          # Navigate to the server path
+          ssh jimmy@${{ env.TARGET_SERVER }} -A << 'EOF'
           cd '/home/jimmy/home-server/app/openwebui'
-
-          # Check current remote URL
-          echo "Current remote URL:"
-          git remote get-url origin
+          git fetch origin $GITHUB_REF_NAME || true
+          git checkout $GITHUB_REF_NAME || true
+          git pull origin $GITHUB_REF_NAME --rebase || true
           
-          # Use HTTPS URL for pulling (works for public repos)
-          if git remote get-url origin | grep -q "git@github.com"; then
-            echo "Switching to HTTPS URL for pulling..."
-            git remote set-url origin https://github.com/jimmyliaoviva/home-server.git
-          fi
-          
-          # Pull the latest changes
-          git pull origin main
-          
-          sh start.sh --mcpo-only
+          docker compose build open-webui
+          docker compose up -d open-webui
           EOF
 
       - name: Verify deployment
         run: |
-          ssh jimmy@192.168.68.124 << 'EOF'
+          sleep 30
+          ssh jimmy@${{ env.TARGET_SERVER }} << 'EOF'
           echo "🔍 Checking deployment status..."
-          docker ps --filter "name=mcpo" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" || echo "❌ MCPO not found"
-
-          echo "✅ Deployment verification completed!"
+          docker ps --filter "name=open-webui" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
+          echo ""
+          echo "📝 Container logs (last 50 lines):"
+          docker logs --tail 50 open-webui 2>&1 || echo "No logs available"
+          echo "✅ Deployment completed!"
+          echo ""
+          echo "🌐 OpenWebUI URL: http://$TARGET_SERVER:3000"
           EOF

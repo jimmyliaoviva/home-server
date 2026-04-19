@@ -34,10 +34,9 @@ RUN npm install -g @modelcontextprotocol/server-memory
 # Create a non-root user for security
 RUN useradd -m -u 1000 mcpo
 
-# Install Terraform MCP server using Go and make it accessible to mcpo user
-RUN go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@latest \
-    && cp /root/go/bin/terraform-mcp-server /usr/local/bin/ \
-    && chmod +x /usr/local/bin/terraform-mcp-server
+# Terraform MCP server skipped - has replace directive issues
+# Install manually if needed:
+# RUN go install github.com/hashicorp/terraform-mcp-server/cmd/terraform-mcp-server@v0.4.0
 
 # Copy custom MCP servers and set ownership
 COPY mcp-servers/ /app/mcp-servers/
