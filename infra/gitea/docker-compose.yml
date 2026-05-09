@@ -6,7 +6,7 @@ networks:
 
 services:
   server:
-    image: docker.gitea.com/gitea:1.24.3-rootless
+    image: docker.gitea.com/gitea:1.26.1-rootless
     restart: always
     volumes:
       - ./data:/var/lib/gitea
