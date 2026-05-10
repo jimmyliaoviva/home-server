@@ -148,6 +148,13 @@ services:
         keywords: "monitor"
         url: "https://grafana.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
+      - name: "openwebui"
+        logo: "assets/tools/openwebui.png"
+        subtitle: "Service monitor"
+        tag: "AI"
+        keywords: "AI"
+        url: "https://ai.jimmylabs.org"
+        target: "_blank" # optional html a tag target attribute
 
 
 
