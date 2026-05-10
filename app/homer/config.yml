@@ -94,31 +94,20 @@ services:
         keywords: "Integrate console"
         url: "https://proxmox.jimmylab.duckdns.org"
         target: "_blank" # optional html a tag target attribute
-      - name: "Promxox2"
+      - name: "Promxox3"
         logo: "assets/tools/proxmox.png"
         subtitle: "A backdoor?"
         tag: "infra"
         keywords: "laptop console"
-        url: "https://192.168.68.123:8006/"
+        url: "https://proxmox3.jimmylab.duckdns.org/"
         target: "_blank" # optional html a tag target attribute
       - name: "Portainer"
         logo: "assets/tools/portainer.png"
         subtitle: "Where dockers dock"
         tag: "dockers"
-        url: "https://portainer.jimmylab.duckdns.org"
+        url: "https://portainer.internal.jimmylabs.org"
         target: "_blank" # optional html a tag target attribute
-      - name: "Ansible Semaphore"
-        logo: "assets/tools/semaphore.png"
-        subtitle: "automation, pipeline, CI/CD"
-        tag: "ansible"
-        url: "https://semaphore.jimmylab.duckdns.org"
-        target: "_blank" # optional html a tag target attribute
-      - name: "Jenkins"
-        logo: "assets/tools/jenkins.jpg"
-        subtitle: "Old mad man"
-        tag: "Jenkins"
-        url: "https://jenkins.jimmylab.duckdns.org"
-        target: "_blank" # optional html a tag target attribute
+
 
 
   - name: "Application"
@@ -129,7 +118,7 @@ services:
         subtitle: "Just another google drive"
         tag: "Storage"
         keywords: "file save"
-        url: "https://jimmyviva.tplinkdns.com"
+        url: "https://nextcloud.jimmylabs.org"
         target: "_blank" # optional html a tag target attribute
       - name: "Home assistant"
         logo: "assets/tools/homeassistant.png"
@@ -165,6 +154,12 @@ services:
   - name: "Network"
     icon: "fas fa-circle-nodes"
     items:
+      - name: "OpenWRT"
+        logo: "assets/tools/openwrt.png"
+        subtitle: "Router firmware"
+        tag: "network"
+        url: "https://openwrt.internal.jimmylabs.org"
+        target: "_blank" # optional html a tag target attribute
       - name: "AdGuard Home"
         logo: "assets/tools/adguard.png"
         subtitle: "No more ADs"

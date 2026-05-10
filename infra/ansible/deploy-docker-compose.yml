@@ -48,6 +48,14 @@
             msg: "Docker compose file {{ repo_path }}/{{ app_path }}/{{ compose_file }} not found"
           when: not compose_file_check.stat.exists
 
+        - name: Login to Gitea Container Registry
+          command: docker login gitea.jimmylab.duckdns.org -u {{ gitea_registry_user }} -p {{ gitea_registry_password }}
+          args:
+            chdir: "{{ repo_path }}/{{ app_path }}"
+          when: gitea_registry_user is defined and gitea_registry_password is defined
+          register: docker_login_result
+          failed_when: false
+
         - name: Pull latest images
           command: docker compose pull
           args:

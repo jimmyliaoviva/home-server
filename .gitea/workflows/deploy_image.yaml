@@ -63,8 +63,8 @@ jobs:
           branch: ${{ gitea.ref_name || 'main' }}  # 如果 ref_name 為空則使用 main
           ssh_user: ${{ steps.server-config.outputs.ssh-user }}
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          clone_method: 'pull'
-          target_directory: '/home/jimmy'
+          clone_method: ${{ env.target_server == 'maple' && 'force_update' || 'pull' }}
+          target_directory: ${{ env.target_server == 'maple' && '/home/one' || '/home/jimmy' }}
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -87,7 +87,7 @@ jobs:
           python3 simple_inventory.py --list
 
           ansible-playbook -i simple_inventory.py deploy-docker-compose.yml \
-            --extra-vars "app_name=${{ env.deploy_image }} app_path=$APP_PATH deploy_action=up postgres_user=${{ secrets.POSTGRES_USER }} postgres_password=${{ secrets.POSTGRES_PASSWORD }} postgres_db=${{ secrets.POSTGRES_DB }}" \
+            --extra-vars "app_name=${{ env.deploy_image }} app_path=$APP_PATH deploy_action=up gitea_registry_user=${{ secrets.REGISTRY_USER }} gitea_registry_password=${{ secrets.REGISTRY_PASSWORD }} postgres_user=${{ secrets.POSTGRES_USER }} postgres_password=${{ secrets.POSTGRES_PASSWORD }} postgres_db=${{ secrets.POSTGRES_DB }}" \
             --limit ${{ env.target_server }} \
             -v
 

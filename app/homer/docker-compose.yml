@@ -1,11 +1,7 @@
 version: '3.8'
 services:
   homer:
-    image: b4bz/homer:latest
+    image: gitea.jimmylab.duckdns.org/jimmy/homer:latest
     ports:
       - 8080:8080
-    volumes:
-      - /home/jimmy/home-server/app/homer:/www/assets
     restart: always
-    tty: true
-    stdin_open: true
