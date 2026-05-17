@@ -10,14 +10,14 @@ locals {
   common_file = find_in_parent_folders("_common/common.hcl")
   common      = read_terragrunt_config(local.common_file)
 
-  # Proxmox configuration - CLUSTER 1 - from environment variables
+  # Proxmox configuration - CLUSTER 2 - from environment variables
   proxmox_config = {
-    endpoint     = get_env("PROXMOX_ENDPOINT_CLUSTER1", get_env("PROXMOX_ENDPOINT"))
-    username     = get_env("PROXMOX_USERNAME_CLUSTER1", get_env("PROXMOX_USERNAME"))
-    password     = get_env("PROXMOX_PASSWORD_CLUSTER1", get_env("PROXMOX_PASSWORD"))
-    node         = get_env("PROXMOX_NODE_CLUSTER1", get_env("PROXMOX_NODE"))
-    tls_insecure = get_env("PROXMOX_TLS_INSECURE_CLUSTER1", get_env("PROXMOX_TLS_INSECURE", "true")) == "true"
-    timeout      = tonumber(get_env("PROXMOX_TIMEOUT_CLUSTER1", get_env("PROXMOX_TIMEOUT", "300")))
+    endpoint     = get_env("PROXMOX_ENDPOINT_CLUSTER2", get_env("PROXMOX_ENDPOINT"))
+    username     = get_env("PROXMOX_USERNAME_CLUSTER2", get_env("PROXMOX_USERNAME"))
+    password     = get_env("PROXMOX_PASSWORD_CLUSTER2", get_env("PROXMOX_PASSWORD"))
+    node         = get_env("PROXMOX_NODE_CLUSTER2", get_env("PROXMOX_NODE"))
+    tls_insecure = get_env("PROXMOX_TLS_INSECURE_CLUSTER2", get_env("PROXMOX_TLS_INSECURE", "true")) == "true"
+    timeout      = tonumber(get_env("PROXMOX_TIMEOUT_CLUSTER2", get_env("PROXMOX_TIMEOUT", "300")))
   }
 
   # SSH configuration from environment variables
@@ -65,7 +65,7 @@ inputs = {
     disk_size   = "200G"
     storage     = "local-lvm"
     network     = "vmbr0"
-    description = "K3s production cluster - agent node 1 (worker) - Cluster 1 (n100r)"
+    description = "K3s production cluster - agent node 1 (worker) - Cluster 2 (n100r)"
   }
 
   # SSH configuration

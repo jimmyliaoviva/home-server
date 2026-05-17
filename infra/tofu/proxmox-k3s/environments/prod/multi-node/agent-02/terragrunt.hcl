@@ -1,5 +1,5 @@
 # Production Environment - Multi-Node K3s Agent 2 (Worker Node)
-# SPECIAL: This agent deploys to CLUSTER 2 (different Proxmox cluster)
+# SPECIAL: This agent deploys to CLUSTER 1 (shiro)
 
 # Include root configuration
 include "root" {
@@ -11,14 +11,14 @@ locals {
   common_file = find_in_parent_folders("_common/common.hcl")
   common      = read_terragrunt_config(local.common_file)
 
-  # Proxmox configuration - CLUSTER 2 - from environment variables
+  # Proxmox configuration - CLUSTER 1 - from environment variables
   proxmox_config = {
-    endpoint     = get_env("PROXMOX_ENDPOINT_CLUSTER2", get_env("PROXMOX_ENDPOINT"))
-    username     = get_env("PROXMOX_USERNAME_CLUSTER2", get_env("PROXMOX_USERNAME"))
-    password     = get_env("PROXMOX_PASSWORD_CLUSTER2", get_env("PROXMOX_PASSWORD"))
-    node         = get_env("PROXMOX_NODE_CLUSTER2", get_env("PROXMOX_NODE"))
-    tls_insecure = get_env("PROXMOX_TLS_INSECURE_CLUSTER2", get_env("PROXMOX_TLS_INSECURE", "true")) == "true"
-    timeout      = tonumber(get_env("PROXMOX_TIMEOUT_CLUSTER2", get_env("PROXMOX_TIMEOUT", "300")))
+    endpoint     = get_env("PROXMOX_ENDPOINT_CLUSTER1", get_env("PROXMOX_ENDPOINT"))
+    username     = get_env("PROXMOX_USERNAME_CLUSTER1", get_env("PROXMOX_USERNAME"))
+    password     = get_env("PROXMOX_PASSWORD_CLUSTER1", get_env("PROXMOX_PASSWORD"))
+    node         = get_env("PROXMOX_NODE_CLUSTER1", get_env("PROXMOX_NODE"))
+    tls_insecure = get_env("PROXMOX_TLS_INSECURE_CLUSTER1", get_env("PROXMOX_TLS_INSECURE", "true")) == "true"
+    timeout      = tonumber(get_env("PROXMOX_TIMEOUT_CLUSTER1", get_env("PROXMOX_TIMEOUT", "300")))
   }
 
   # SSH configuration from environment variables
@@ -60,13 +60,13 @@ inputs = {
   vm_config = {
     name        = "k3s-prod-agent-02"
     template    = "ubuntu-24.04-cloud-init"
-    cores       = 4              # Production: more resources than dev
-    memory      = 8192           # Production: 8GB RAM
+    cores       = 4
+    memory      = 16384          # 16GB RAM
     scsihw      = "virtio-scsi-single"
-    disk_size   = "200G"
-    storage     = "local-lvm"    # IMPORTANT: Verify this storage exists on shiro node
+    disk_size   = "800G"
+    storage     = "local-lvm"
     network     = "vmbr0"
-    description = "K3s production cluster - agent node 2 (worker) - Cluster 2 (shiro)"
+    description = "K3s production cluster - agent node 2 (worker) - Cluster 1 (shiro)"
   }
 
   # SSH configuration
@@ -76,7 +76,7 @@ inputs = {
   network_config = merge(
     local.network_defaults,
     {
-      ip_address = "192.168.68.212/24"
+      ip_address = "192.168.68.213/24"
     }
   )
 
